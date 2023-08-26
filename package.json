@@ -1,0 +1,18 @@
+{
+  "name": "teamsykmelding-cli",
+  "type": "module",
+  "dependencies": {
+    "date-fns": "^2.30.0",
+    "octokit": "^3.1.0",
+    "remeda": "^1.25.2"
+  },
+  "devDependencies": {
+    "@navikt/eslint-config-teamsykmelding": "^4.3.0",
+    "bun-types": "latest",
+    "prettier": "^3.0.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "prettier": "@navikt/eslint-config-teamsykmelding/prettier"
+}
