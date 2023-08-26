@@ -31,11 +31,11 @@ type RepoNodes = {
     }
 }
 
-const getTeamReposQuery = /* GraphQL */ `
-    query OurRepos($team: String!) {
+const reposQuery = /* GraphQL */ `
+    query OurRepos($team: String!, $order: OrderDirection!) {
         organization(login: "navikt") {
             team(slug: $team) {
-                repositories {
+                repositories(orderBy: { field: PUSHED_AT, direction: $order }) {
                     nodes {
                         name
                         isArchived
@@ -70,11 +70,21 @@ const getTeamReposQuery = /* GraphQL */ `
 
 async function getRepositories(
     team: string,
+    order: 'asc' | 'desc',
+    limit: number | undefined,
 ): Promise<{ name: string; lastPush: Date; commit: string; action: CheckSuite }[]> {
-    log(chalk.green(`Getting repositories for team ${team}`))
+    log(chalk.green(`Getting ${limit == null ? 'all' : limit} repositories in order ${order} for team ${team}`))
 
-    const queryResult = (await getOctokitClient().graphql(getTeamReposQuery, {
+    console.log({
         team,
+        order: order.toUpperCase(),
+        limit: limit,
+    })
+
+    const queryResult = (await getOctokitClient().graphql(reposQuery, {
+        team,
+        order: order.toUpperCase(),
+        limit: limit,
     })) as any
 
     const repos = R.pipe(
@@ -86,8 +96,7 @@ async function getRepositories(
             commit: repo.defaultBranchRef.target.message,
             action: repo.defaultBranchRef.target.checkSuites.nodes[0],
         })),
-        R.sortBy((it) => it.lastPush),
-        R.reverse(),
+        R.take(limit ?? Infinity),
     )
 
     log(`Got ${chalk.greenBright(repos.length)} repositories for team ${team}`)
@@ -125,8 +134,8 @@ function coloredTimestamp(timestamp: Date): string {
     }
 }
 
-export async function lastCommits() {
-    const lastCommits = await getRepositories('teamsykmelding')
+export async function lastCommits(order: 'asc' | 'desc', limit: number | undefined): Promise<void> {
+    const lastCommits = await getRepositories('teamsykmelding', order, limit)
 
     log(
         lastCommits
