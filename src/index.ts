@@ -6,7 +6,7 @@ import { lastCommits } from './actions/last-commits.ts'
 import { hasNewVersion, hasNewVersionCached, updateToNewestVersion, writeNewVersionCache } from './self-updater.ts'
 import { log } from './common/log.ts'
 import chalk from 'chalk'
-import packageJson from '../package.json'
+import packageJson from '../tsm-cli/package.json'
 
 if (Bun.argv.find((it) => it.includes('check-version')) == null) {
     // Only spawn a background version check all other args, or else we get a infinite loop of spawns

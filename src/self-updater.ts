@@ -3,7 +3,7 @@ import * as fs from 'node:fs'
 import { parse } from 'semver'
 import chalk from 'chalk'
 
-import packageJson from '../package.json'
+import packageJson from '../tsm-cli/package.json'
 
 import { log } from './common/log.ts'
 

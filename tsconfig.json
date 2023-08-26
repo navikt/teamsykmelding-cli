@@ -19,5 +19,5 @@
       "bun-types"
     ]
   },
-  "include": ["package.json", "src/**/*"],
+  "include": ["./tsm-cli/package.json", "src/**/*"],
 }
