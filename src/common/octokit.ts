@@ -1,16 +1,25 @@
 import { Octokit } from 'octokit'
+import { log } from './log.ts'
+import chalk from 'chalk'
 
-if (!Bun.env.READER_TOKEN) {
-    console.error('READER_TOKEN is not set')
-    process.exit(1)
+let octokit: Octokit | null = null
+export function getOctokitClient(): Octokit {
+    if (octokit === null) {
+        octokit = new Octokit({ auth: getGithubCliToken() })
+    }
+
+    return octokit
 }
 
-export const octokit = new Octokit({
-    auth: Bun.env.READER_TOKEN,
-})
+function getGithubCliToken(): string {
+    const subProcess = Bun.spawnSync('gh auth status --show-token'.split(' '))
+    // gh-cli puts the token on stderr, probably because security
+    const data: string | null = subProcess.stderr.toString().match(/Token: (.*)/)?.[1] ?? null
 
-const blacklist: string[] = ['vault-iac']
+    if (!data?.trim()) {
+        log(chalk.red(`Could not get github cli token. Please run 'gh auth login' and try again.`))
+        process.exit(1)
+    }
 
-export function blacklisted<Repo extends { name: string }>(repo: Repo): boolean {
-    return !blacklist.includes(repo.name)
+    return data
 }

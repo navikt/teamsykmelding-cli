@@ -1,15 +1,43 @@
 # teamsykmelding-cli
 
-To install dependencies:
+En liten verktøykasse for #team-sykmelding
+
+## Kom i gang
+
+### Oppsett
+- Du må ha [Node.js](https://nodejs.org/en/) installert, husk å bruk verktøy som nvm eller asdf for å håndtere versjoner.
+
+### Konfigurasjon
+Du må ha en `.npmrc` fil på root i home-mappen din med følgende innhold:
+
+```
+@navikt:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${NPM_AUTH_TOKEN}
+```
+
+### Tilgang
+
+Du må ha en PAT (Personal Access Token) for å kunne laste ned pakker fra Github Package Registry. Denne kan 
+du lage [her](https://github.com/settings/tokens). Du må gi den `read:packages` scope, bruk PAT typen "classic"
+
+Legg til denne i din `~/.bashrc` eller `~/.zshrc` fil:
+
+```bash
+export NPM_AUTH_TOKEN=<din token>
+```
+
+
+
+### Utvikling
+
+Dette kommandolinje-verktøyet er skrevet i TypeScript og bruker bun.sh. For å kjøre det må du først bygge det:
 
 ```bash
 bun install
 ```
 
-To run:
+Deretter kan du kjøre det med:
 
 ```bash
-bun run index.ts
+bun run src/index.ts
 ```
-
-This project was created using `bun init` in bun v0.8.1. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.

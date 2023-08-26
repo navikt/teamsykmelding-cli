@@ -47,7 +47,5 @@ jobs:
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-      - run: jq --arg version "1.0.$(date +%F-%M)" '.version = $version' package.json > updated.json && mv updated.json package.json
+      - run: jq --arg version "1.0.$(date +%F-%H%M)" '.version = $version' package.json > updated.json && mv updated.json package.json
       - run: git add . && git commit -m "[skip ci] bump version to $(jq -r .version package.json)" && git push
-      - name: Release
-        uses: softprops/action-gh-release@v1
