@@ -11,7 +11,7 @@ import { openPrs } from './actions/prs.ts'
 
 if (Bun.argv.find((it) => it.includes('check-version')) == null) {
     // Only spawn a background version check all other args, or else we get a infinite loop of spawns
-    Bun.spawn('./tsm check-version'.split(' ')).unref()
+    Bun.spawn('tsm check-version'.split(' ')).unref()
 
     if (Bun.argv.find((it) => it === 'update') == null) {
         // Check cache and notify if there is a new version
