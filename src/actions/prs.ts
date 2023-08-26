@@ -2,9 +2,10 @@ import * as R from 'remeda'
 import { parseISO } from 'date-fns'
 import { getOctokitClient } from '../common/octokit.ts'
 import { log } from '../common/log.ts'
-import chalk from 'chalk'
+import chalk, { backgroundColorNames } from 'chalk'
 import { blacklisted } from '../common/repos.ts'
 import { coloredTimestamp } from '../common/date-utils.ts'
+import * as crypto from 'crypto'
 
 type PrNode = {
     title: string
@@ -82,6 +83,13 @@ async function getPrs(team: string, includeDrafts = false): Promise<Record<strin
     return openPrs
 }
 
+function authorToColorAvatar(username: string) {
+    const index =
+        parseInt(crypto.createHash('md5').update(username).digest('hex').slice(-6), 16) % backgroundColorNames.length
+
+    return chalk[backgroundColorNames[index]]('  ')
+}
+
 export async function openPrs(includeDrafts: boolean): Promise<void> {
     const openPrs = await getPrs('teamsykmelding', includeDrafts)
 
@@ -93,9 +101,9 @@ export async function openPrs(includeDrafts: boolean): Promise<void> {
             log(chalk.greenBright(repo))
             prs.forEach((pr) => {
                 log(
-                    `\t${pr.title} (${pr.permalink})\n\tBy ${pr.author.login} ${coloredTimestamp(
-                        parseISO(pr.updatedAt),
-                    )} ago${pr.isDraft ? ' (draft)' : ''}`,
+                    `\t${pr.title} (${pr.permalink})\n\tBy ${authorToColorAvatar(pr.author.login)} ${
+                        pr.author.login
+                    } ${coloredTimestamp(parseISO(pr.updatedAt))} ago${pr.isDraft ? ' (draft)' : ''}`,
                 )
             })
         }),
