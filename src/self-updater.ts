@@ -31,10 +31,9 @@ export function updateToNewestVersion(): void {
             log(chalk.bgWhite.red(`Could not update to version ${newVersion}.`))
             log(chalk.red(updateSub.stderr.toString()))
 
-            fs.rmSync(path.join(cacheDir, 'metadata.json'))
-
             process.exit(1)
         }
+        fs.rmSync(path.join(cacheDir, 'metadata.json'))
     } else {
         log(chalk.green(`You are on the latest version!`))
     }
