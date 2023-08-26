@@ -3,9 +3,9 @@ import { log } from './log.ts'
 import chalk from 'chalk'
 
 let octokit: Octokit | null = null
-export function getOctokitClient(): Octokit {
+export function getOctokitClient(auth: 'cli' | 'package' = 'cli'): Octokit {
     if (octokit === null) {
-        octokit = new Octokit({ auth: getGithubCliToken() })
+        octokit = new Octokit({ auth: auth === 'cli' ? getGithubCliToken() : Bun.env.NPM_AUTH_TOKEN })
     }
 
     return octokit
