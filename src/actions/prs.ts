@@ -6,8 +6,6 @@ import chalk, { backgroundColorNames } from 'chalk'
 import { blacklisted } from '../common/repos.ts'
 import { coloredTimestamp } from '../common/date-utils.ts'
 import * as crypto from 'crypto'
-import terminalImage from 'terminal-image'
-import * as buffer from 'buffer'
 
 type PrNode = {
     title: string
@@ -92,23 +90,8 @@ function authorToColorAvatar(username: string) {
     return chalk[backgroundColorNames[index]]('  ')
 }
 
-async function fetchToBuffer(url: string): Promise<string> {
-    const arrayBuffer = await fetch(url).then((it) => it.arrayBuffer())
-
-    return terminalImage.buffer(Buffer.from(arrayBuffer), { height: 2, width: 2 })
-}
-
 export async function openPrs(includeDrafts: boolean): Promise<void> {
     const openPrs = await getPrs('teamsykmelding', includeDrafts)
-
-    const avatarTuples = await R.pipe(
-        openPrs,
-        R.values,
-        R.flatten(),
-        R.map(async (it): Promise<[string, string]> => [it.author.login, await fetchToBuffer(it.author.avatarUrl)]),
-        (it) => Promise.all(it),
-    )
-    const avatarLookup = R.fromPairs(avatarTuples)
 
     R.pipe(
         openPrs,
@@ -118,11 +101,9 @@ export async function openPrs(includeDrafts: boolean): Promise<void> {
             log(chalk.greenBright(repo))
             prs.forEach((pr) => {
                 log(
-                    `\t${pr.title} (${pr.permalink})\n\t${coloredTimestamp(parseISO(pr.updatedAt))} ago by ${
+                    `\t${pr.title} (${pr.permalink})\n\tBy ${authorToColorAvatar(pr.author.login)} ${
                         pr.author.login
-                    } ${avatarLookup[pr.author.login] ?? authorToColorAvatar(pr.author.login)} ${
-                        pr.isDraft ? ' (draft)' : ''
-                    }`,
+                    } ${coloredTimestamp(parseISO(pr.updatedAt))} ago${pr.isDraft ? ' (draft)' : ''}`,
                 )
             })
         }),
