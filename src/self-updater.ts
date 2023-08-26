@@ -44,7 +44,7 @@ export async function hasNewVersionCached(): Promise<string | null> {
     if (!(await versionFile.exists())) return null
 
     const file = await versionFile.json()
-    return file?.newVersion ? file.newVersion : null
+    return file?.newVersion !== packageJson.version ? file.newVersion : null
 }
 
 export async function writeNewVersionCache(version: string) {
