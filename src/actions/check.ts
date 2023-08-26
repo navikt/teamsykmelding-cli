@@ -5,8 +5,8 @@ import { log } from '../common/log.ts'
 const REQUIRED_CLI = ['gh', 'yarn', 'kubectl', 'nais'] as const
 const CLI_CHECKS: [cli: (typeof REQUIRED_CLI)[number], check: () => string | null][] = [
     ['gh', checkGithubCli],
+    ['kubectl', checkKubectl],
     ['yarn', () => null],
-    ['kubectl', () => null],
     ['nais', () => null],
 ]
 
@@ -48,6 +48,15 @@ function checkGithubCli(): string | null {
         return null
     } else {
         return "You need to be logged in to github.com using gh cli. Run 'gh auth login' and follow the instructions."
+    }
+}
+
+function checkKubectl(): string | null {
+    const res = Bun.spawnSync('kubectl version --client --output=json'.split(' '))
+    if (res.exitCode === 0) {
+        return null
+    } else {
+        return "kubectl is not configured correctly. Please run 'kubectl version --client --output=json' to see what is wrong."
     }
 }
 
