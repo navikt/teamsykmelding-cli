@@ -172,4 +172,5 @@ dist
 .idea
 
 # project
-tms-cli
+tsm
+tsconfig.tsbuildinfo

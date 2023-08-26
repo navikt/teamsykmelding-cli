@@ -1,22 +1,26 @@
 {
-  "name": "teamsykmelding-cli",
-  "type": "module",
-  "dependencies": {
-    "@inquirer/prompts": "^3.0.3",
-    "chalk": "^5.3.0",
-    "date-fns": "^2.30.0",
-    "octokit": "^3.1.0",
-    "remeda": "^1.25.2",
-    "yargs": "^17.7.2"
-  },
-  "devDependencies": {
-    "@navikt/eslint-config-teamsykmelding": "^4.3.0",
-    "@types/yargs": "^17.0.24",
-    "bun-types": "latest",
-    "prettier": "^3.0.2"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  },
-  "prettier": "@navikt/eslint-config-teamsykmelding/prettier"
+    "name": "teamsykmelding-cli",
+    "type": "module",
+    "scripts": {
+        "tsc": "bun x tsc",
+        "build-cli": "bun build --target bun src/index.ts --compile --outfile tsm"
+    },
+    "dependencies": {
+        "@inquirer/prompts": "^3.0.3",
+        "chalk": "^5.3.0",
+        "date-fns": "^2.30.0",
+        "octokit": "^3.1.0",
+        "remeda": "^1.25.2",
+        "yargs": "^17.7.2"
+    },
+    "devDependencies": {
+        "@navikt/eslint-config-teamsykmelding": "^4.3.0",
+        "@types/yargs": "^17.0.24",
+        "bun-types": "latest",
+        "prettier": "^3.0.2"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    },
+    "prettier": "@navikt/eslint-config-teamsykmelding/prettier"
 }
