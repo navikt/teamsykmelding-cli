@@ -1,6 +1,6 @@
 import * as R from 'remeda'
 import { parseISO, subMonths } from 'date-fns'
-import { octokit } from './common/octokit.ts'
+import { octokit } from '../common/octokit.ts'
 
 type RepoNodes = {
     name: string
