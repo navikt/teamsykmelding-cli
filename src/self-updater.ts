@@ -11,7 +11,7 @@ const cacheDir = path.join(Bun.env.HOME ?? '~', '.cache', 'tsm')
 
 export function hasNewVersion(): Promise<string | null> {
     const sub = Bun.spawnSync('npm view @navikt/teamsykmelding-cli@latest versions --json'.split(' '))
-    const result = JSON.parse(sub.stdout.toString())[0]
+    const result = JSON.parse(sub.stdout.toString()).at(-1)
 
     if (!parse(result)) {
         throw new Error(`Could not parse version ${result}`)
