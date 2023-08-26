@@ -45,6 +45,12 @@ Nå er du klar til å bruke `tsm`!
 tsm check
 ```
 
+#### Alle åpne pull requester i våre repos, inkludert drafts
+
+```bash
+tsm prs --drafts
+```
+
 #### Hent alle nyeste commits i alle repos
 
 ```bash
