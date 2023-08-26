@@ -28,6 +28,15 @@ Legg til denne i din `~/.bashrc` eller `~/.zshrc` fil:
 export NPM_AUTH_TOKEN=<din token>
 ```
 
+### Installer CLI
+
+```bash
+npm i -g @navikt/teamsykmelding-cli
+```
+
+Nå er du klar til å bruke `tsm`! 
+
+
 ### Eksempler på bruk:
 
 #### Sjekk at du har satt opp alle verktøy riktig
