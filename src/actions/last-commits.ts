@@ -75,12 +75,6 @@ async function getRepositories(
 ): Promise<{ name: string; lastPush: Date; commit: string; action: CheckSuite }[]> {
     log(chalk.green(`Getting ${limit == null ? 'all' : limit} repositories in order ${order} for team ${team}`))
 
-    console.log({
-        team,
-        order: order.toUpperCase(),
-        limit: limit,
-    })
-
     const queryResult = (await getOctokitClient().graphql(reposQuery, {
         team,
         order: order.toUpperCase(),

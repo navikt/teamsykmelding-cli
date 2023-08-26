@@ -22,10 +22,7 @@ await yargs(hideBin(process.argv))
                     default: undefined,
                     describe: 'the number of commits to return',
                 }),
-        async (args) => {
-            console.log(args);
-            return lastCommits(args.order as 'asc' | 'desc', args.limit)
-        },
+        async (args) => lastCommits(args.order as 'asc' | 'desc', args.limit),
     )
     .demandCommand()
     .parse()
