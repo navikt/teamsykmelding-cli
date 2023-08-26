@@ -1,25 +1,27 @@
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
+import chalk from 'chalk'
 
 import { checkTooling } from './actions/check.ts'
 import { lastCommits } from './actions/last-commits.ts'
 import { hasNewVersion, hasNewVersionCached, updateToNewestVersion, writeNewVersionCache } from './self-updater.ts'
 import { log } from './common/log.ts'
-import chalk from 'chalk'
 import packageJson from '../tsm-cli/package.json'
 
 if (Bun.argv.find((it) => it.includes('check-version')) == null) {
     // Only spawn a background version check all other args, or else we get a infinite loop of spawns
     Bun.spawn('./tsm check-version'.split(' ')).unref()
 
-    // Check cache and notify if there is a new version
-    const newVersion = await hasNewVersionCached()
-    if (newVersion) {
-        log(
-            `\n\tNew version available! ${chalk.yellow(packageJson.version)} -> ${chalk.green(
-                newVersion,
-            )}\n\n\tRun ${chalk.cyan('tsm update')} to update\n`,
-        )
+    if (Bun.argv.find((it) => it === 'update') == null) {
+        // Check cache and notify if there is a new version
+        const newVersion = await hasNewVersionCached()
+        if (newVersion) {
+            log(
+                `\n\tNew version available! ${chalk.yellow(packageJson.version)} -> ${chalk.green(
+                    newVersion,
+                )}\n\n\tRun ${chalk.cyan('tsm update')} to update\n`,
+            )
+        }
     }
 }
 
@@ -48,7 +50,7 @@ await yargs(hideBin(process.argv))
         'update',
         'update the cli',
         (yargs) => yargs,
-        async () => await updateToNewestVersion(),
+        async () => updateToNewestVersion(),
     )
     .command(
         'check-version',
@@ -62,6 +64,7 @@ await yargs(hideBin(process.argv))
             } else {
                 log(chalk.green(`You are on the latest version!`))
             }
+            console.log('what')
         },
     )
     .demandCommand()
