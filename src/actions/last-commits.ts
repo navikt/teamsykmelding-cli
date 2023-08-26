@@ -1,8 +1,9 @@
 import * as R from 'remeda'
-import { differenceInDays, formatDistanceStrict, parseISO, subMonths } from 'date-fns'
+import { parseISO } from 'date-fns'
 import { getOctokitClient } from '../common/octokit.ts'
 import { log } from '../common/log.ts'
 import chalk from 'chalk'
+import { coloredTimestamp } from '../common/date-utils.ts'
 
 type CheckSuite = {
     status: string
@@ -112,19 +113,6 @@ function coloredStatus(action: CheckSuite): string {
             return chalk.gray(action.status)
         default:
             return chalk.red(action.status)
-    }
-}
-
-function coloredTimestamp(timestamp: Date): string {
-    const now = new Date()
-    const daysSince = differenceInDays(now, timestamp)
-    const distance = formatDistanceStrict(timestamp, now)
-    if (daysSince < 7) {
-        return chalk.green(distance)
-    } else if (daysSince < 14) {
-        return chalk.yellow(distance)
-    } else {
-        return chalk.cyan(distance)
     }
 }
 
