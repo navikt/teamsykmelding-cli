@@ -8,6 +8,7 @@ import { hasNewVersion, hasNewVersionCached, updateToNewestVersion, writeNewVers
 import { log } from './common/log.ts'
 import packageJson from '../tsm-cli/package.json'
 import { openPrs } from './actions/prs.ts'
+import { getRepoMainBranch } from './actions/repo-metadata.ts'
 
 if (Bun.argv.find((it) => it.includes('check-version')) == null) {
     // Only spawn a background version check all other args, or else we get a infinite loop of spawns
@@ -53,6 +54,17 @@ await yargs(hideBin(process.argv))
         (yargs) =>
             yargs.positional('drafts', { type: 'boolean', default: false, describe: 'include draft pull requests' }),
         async (args) => openPrs(args.drafts),
+    )
+    .command(
+        'primary-branch',
+        'get misc repo metadata',
+        (yargs) =>
+            yargs.positional('show-main', {
+                type: 'boolean',
+                default: false,
+                describe: 'include main branches in output',
+            }),
+        async (args) => getRepoMainBranch(args.showMain),
     )
     .command(
         'update',
