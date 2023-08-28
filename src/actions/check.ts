@@ -2,12 +2,13 @@ import * as R from 'remeda'
 import chalk from 'chalk'
 import { log } from '../common/log.ts'
 
-const REQUIRED_CLI = ['gh', 'yarn', 'kubectl', 'nais'] as const
+const REQUIRED_CLI = ['gh', 'yarn', 'kubectl', 'nais', 'gcloud'] as const
 const CLI_CHECKS: [cli: (typeof REQUIRED_CLI)[number], check: () => string | null][] = [
     ['gh', checkGithubCli],
     ['kubectl', checkKubectl],
-    ['yarn', () => null],
-    ['nais', () => null],
+    ['yarn', () => defaultVersionCheck('yarn --version')],
+    ['nais', () => defaultVersionCheck('nais --version')],
+    ['gcloud', () => defaultVersionCheck('gcloud --version')],
 ]
 
 export function checkTooling() {
@@ -21,23 +22,26 @@ export function checkTooling() {
         return
     }
 
-    const result = R.pipe(
+    const [ok, bad] = R.pipe(
         CLI_CHECKS,
         R.map(([cli, check]): [string, string | null] => [cli, check()]),
-        R.filter(([, checkResult]) => checkResult != null),
-        (errors) => {
-            return errors
-        },
-        R.map(([cli, checkResult]) => {
-            return ` - ${chalk.bold(cli)}: ${chalk.yellow(checkResult)}`
-        }),
+        R.partition(([, result]) => result == null),
     )
 
-    if (result.length) {
-        log(`The following CLI is not configured correctly:`)
-        log(chalk.red(result.join('\n')))
+    if (ok.length) {
+        log(chalk.green(`The following CLIs are good!`))
+        log(chalk.red(ok.map(([cli, checkResult]) => ` ${chalk.green('✓')} ${chalk.white(cli)}`).join('\n')))
+    }
+
+    if (bad.length) {
+        log(`\nThe following CLI is not configured correctly:`)
+        log(
+            chalk.red(
+                bad.map(([cli, checkResult]) => ` - ${chalk.bold(cli)}: ${chalk.yellow(checkResult)}`).join('\n'),
+            ),
+        )
     } else {
-        log(chalk.green(`All CLIs are configured correctly!`))
+        log(chalk.green(`\nEverything is OK`))
     }
 }
 
@@ -57,6 +61,16 @@ function checkKubectl(): string | null {
         return null
     } else {
         return "kubectl is not configured correctly. Please run 'kubectl version --client --output=json' to see what is wrong."
+    }
+}
+
+function defaultVersionCheck(command: string): string | null {
+    const res = Bun.spawnSync(`${command}`.split(' '))
+
+    if (res.exitCode === 0) {
+        return null
+    } else {
+        return `${command.split(' ').at(0)} is not configured correctly. Please run '${command}' to see what is wrong.`
     }
 }
 
