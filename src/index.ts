@@ -84,7 +84,6 @@ await yargs(hideBin(process.argv))
             } else {
                 log(chalk.green(`You are on the latest version!`))
             }
-            console.log('what')
         },
     )
     .demandCommand()
