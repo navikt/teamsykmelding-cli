@@ -47,8 +47,13 @@ export function checkTooling() {
 
 function checkGithubCli(): string | null {
     const res = Bun.spawnSync('gh auth status'.split(' '))
-    const stdout = res.stderr.toString()
-    if (res.exitCode === 0 && stdout.includes('Logged in to github.com')) {
+    const stdout = res.stdout.toString()
+    const stderr = res.stderr.toString()
+    if (
+        res.exitCode === 0 &&
+        // gh on OSX puts output in stdout,gh on linux puts it in stderr
+        (stdout.includes('Logged in to github.com') || stderr.includes('Logged in to github.com'))
+    ) {
         return null
     } else {
         return "You need to be logged in to github.com using gh cli. Run 'gh auth login' and follow the instructions."
