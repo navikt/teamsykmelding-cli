@@ -1,4 +1,5 @@
 import { Octokit } from 'octokit'
+import { GraphQlResponse } from '@octokit/graphql/dist-types/types'
 import chalk from 'chalk'
 import * as R from 'remeda'
 
@@ -12,6 +13,16 @@ export function getOctokitClient(auth: 'cli' | 'package' = 'cli'): Octokit {
     }
 
     return octokit
+}
+
+/**
+ * Wrapper to enforce types
+ */
+export async function ghGqlQuery<Result = never>(
+    query: string,
+    variables?: Record<string, unknown>,
+): Promise<GraphQLResponse<Result>> {
+    return getOctokitClient().graphql<GraphQLResponse<Result>>(query, variables)
 }
 
 function getGithubCliToken(): string {
@@ -31,11 +42,22 @@ function getGithubCliToken(): string {
     return data
 }
 
+export type GraphQLResponse<Data> = GraphQlResponse<Data>
+
 type OrgTeamResult<Result> = {
     organization: {
         team: Result
     }
 }
+
+export const BaseRepoNodeFragment = /* GraphQL */ `
+    fragment BaseRepoNode on Repository {
+        name
+        isArchived
+        pushedAt
+        url
+    }
+`
 
 type BaseRepoNode<AdditionalRepoProps> = {
     name: string
@@ -50,7 +72,7 @@ export type OrgTeamRepoResult<AdditionalRepoProps> = OrgTeamResult<{
     }
 }>
 
-export const removeIgnored: <AdditionalRepoProps>(
+export const removeIgnoredAndArchived: <AdditionalRepoProps>(
     nodes: BaseRepoNode<AdditionalRepoProps>[],
 ) => BaseRepoNode<AdditionalRepoProps>[] = R.createPipe(
     R.filter((it) => !it.isArchived),

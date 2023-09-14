@@ -2,7 +2,7 @@ import * as R from 'remeda'
 import chalk from 'chalk'
 
 import { log } from '../common/log.ts'
-import { getOctokitClient, OrgTeamRepoResult, removeIgnored } from '../common/octokit.ts'
+import { getOctokitClient, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../common/octokit.ts'
 import { blacklisted } from '../common/repos.ts'
 import { GraphQlResponse } from '@octokit/graphql/dist-types/types'
 import { coloredTimestamp } from '../common/date-utils.ts'
@@ -41,18 +41,15 @@ export async function getRepos() {
 
     log(chalk.green(`Getting all repositories for team ${team}...`))
 
-    const queryResult = await getOctokitClient().graphql<GraphQlResponse<OrgTeamRepoResult<ExtraPropsOnRepo>>>(
-        reposQuery,
-        {
-            team,
-        },
-    )
+    const queryResult = await ghGqlQuery<OrgTeamRepoResult<ExtraPropsOnRepo>>(reposQuery, {
+        team,
+    })
 
     log(`\nFound ${chalk.green(queryResult.organization.team.repositories.nodes.length)} repos:\n`)
 
     const reposByLang = R.pipe(
         queryResult.organization.team.repositories.nodes,
-        removeIgnored,
+        removeIgnoredAndArchived,
         R.groupBy((it) => it.primaryLanguage?.name ?? 'unknown'),
         R.mapValues(R.sortBy([(it) => it.pushedAt, 'asc'])),
         R.toPairs,

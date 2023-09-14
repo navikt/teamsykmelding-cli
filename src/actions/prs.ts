@@ -1,6 +1,6 @@
 import * as R from 'remeda'
 import { parseISO } from 'date-fns'
-import { getOctokitClient } from '../common/octokit.ts'
+import {BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived} from '../common/octokit.ts'
 import { log } from '../common/log.ts'
 import chalk, { backgroundColorNames } from 'chalk'
 import { blacklisted } from '../common/repos.ts'
@@ -18,11 +18,7 @@ type PrNode = {
     }
 }
 
-type RepoNodes = {
-    name: string
-    isArchived: boolean
-    pushedAt: string
-    url: string
+type PullRequestNode = {
     pullRequests: {
         nodes: PrNode[]
     }
@@ -34,10 +30,7 @@ const reposQuery = /* GraphQL */ `
             team(slug: $team) {
                 repositories(orderBy: { field: PUSHED_AT, direction: ASC }) {
                     nodes {
-                        name
-                        isArchived
-                        pushedAt
-                        url
+                        ...BaseRepoNode
                         pullRequests(first: 10, orderBy: { field: UPDATED_AT, direction: DESC }, states: OPEN) {
                             nodes {
                                 title
@@ -55,17 +48,18 @@ const reposQuery = /* GraphQL */ `
             }
         }
     }
+
+    ${BaseRepoNodeFragment}
 `
 
 async function getPrs(team: string, includeDrafts = false): Promise<Record<string, PrNode[]>> {
     log(chalk.green(`Getting all open prs for team ${team}${includeDrafts ? ' (including drafts)' : ''}`))
 
-    const queryResult = (await getOctokitClient().graphql(reposQuery, { team })) as any
+    const queryResult = await ghGqlQuery<OrgTeamRepoResult<PullRequestNode>>(reposQuery, { team })
 
     const openPrs = R.pipe(
-        queryResult.organization.team.repositories.nodes as RepoNodes[],
-        R.filter((it) => !it.isArchived),
-        R.filter(blacklisted),
+        queryResult.organization.team.repositories.nodes,
+        removeIgnoredAndArchived,
         R.flatMap((repo) =>
             R.pipe(
                 repo.pullRequests.nodes,

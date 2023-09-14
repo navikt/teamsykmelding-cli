@@ -1,8 +1,9 @@
 import * as R from 'remeda'
 import { parseISO } from 'date-fns'
-import { getOctokitClient } from '../common/octokit.ts'
-import { log } from '../common/log.ts'
 import chalk from 'chalk'
+
+import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../common/octokit.ts'
+import { log } from '../common/log.ts'
 import { coloredTimestamp } from '../common/date-utils.ts'
 
 type CheckSuite = {
@@ -17,11 +18,7 @@ type CheckSuite = {
     }
 }
 
-type RepoNodes = {
-    name: string
-    isArchived: boolean
-    pushedAt: string
-    url: string
+type BranchRefNode = {
     defaultBranchRef: {
         target: {
             message: string
@@ -38,10 +35,7 @@ const reposQuery = /* GraphQL */ `
             team(slug: $team) {
                 repositories(orderBy: { field: PUSHED_AT, direction: $order }) {
                     nodes {
-                        name
-                        isArchived
-                        pushedAt
-                        url
+                        ...BaseRepoNode
                         defaultBranchRef {
                             target {
                                 ... on Commit {
@@ -67,6 +61,8 @@ const reposQuery = /* GraphQL */ `
             }
         }
     }
+
+    ${BaseRepoNodeFragment}
 `
 
 async function getRepositories(
@@ -76,15 +72,15 @@ async function getRepositories(
 ): Promise<{ name: string; lastPush: Date; commit: string; action: CheckSuite }[]> {
     log(chalk.green(`Getting ${limit == null ? 'all' : limit} repositories in order ${order} for team ${team}`))
 
-    const queryResult = (await getOctokitClient().graphql(reposQuery, {
+    const queryResult = await ghGqlQuery<OrgTeamRepoResult<BranchRefNode>>(reposQuery, {
         team,
         order: order.toUpperCase(),
         limit: limit,
-    })) as any
+    })
 
     const repos = R.pipe(
-        queryResult.organization.team.repositories.nodes as RepoNodes[],
-        R.filter((it) => !it.isArchived),
+        queryResult.organization.team.repositories.nodes,
+        removeIgnoredAndArchived,
         R.map((repo) => ({
             name: repo.name,
             lastPush: parseISO(repo.pushedAt),
