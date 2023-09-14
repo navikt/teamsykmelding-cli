@@ -1,6 +1,9 @@
 import { Octokit } from 'octokit'
-import { log } from './log.ts'
 import chalk from 'chalk'
+import * as R from 'remeda'
+
+import { log } from './log.ts'
+import { blacklisted } from './repos.ts'
 
 let octokit: Octokit | null = null
 export function getOctokitClient(auth: 'cli' | 'package' = 'cli'): Octokit {
@@ -27,3 +30,29 @@ function getGithubCliToken(): string {
 
     return data
 }
+
+type OrgTeamResult<Result> = {
+    organization: {
+        team: Result
+    }
+}
+
+type BaseRepoNode<AdditionalRepoProps> = {
+    name: string
+    isArchived: boolean
+    pushedAt: string
+    url: string
+} & AdditionalRepoProps
+
+export type OrgTeamRepoResult<AdditionalRepoProps> = OrgTeamResult<{
+    repositories: {
+        nodes: BaseRepoNode<AdditionalRepoProps>[]
+    }
+}>
+
+export const removeIgnored: <AdditionalRepoProps>(
+    nodes: BaseRepoNode<AdditionalRepoProps>[],
+) => BaseRepoNode<AdditionalRepoProps>[] = R.createPipe(
+    R.filter((it) => !it.isArchived),
+    R.filter(blacklisted),
+)
