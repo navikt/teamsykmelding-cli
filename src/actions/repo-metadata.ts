@@ -8,7 +8,7 @@ import * as crypto from 'crypto'
 type CheckSuite = {
     branch: {
         name: string
-    }
+    } | null
 }
 
 type RepoNodes = {
@@ -69,7 +69,7 @@ async function getMainBranchPerRepo(team: string): Promise<[string, string][]> {
         R.flatMap((repo) =>
             repo.defaultBranchRef.target.checkSuites.nodes.map((it: CheckSuite): [string, string] => [
                 repo.name,
-                it.branch.name,
+                it.branch?.name ?? 'no primary branch configured',
             ]),
         ),
     )
