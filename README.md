@@ -7,6 +7,7 @@ En liten verktøykasse for #team-sykmelding
 ### Oppsett
 
 -   Du må ha [Node.js](https://nodejs.org/en/) installert, husk å bruk verktøy som nvm eller asdf for å håndtere versjoner.
+-   Du må ha [bun.sh](https://bun.sh) installert, dette kan installeres med curl (`curl -fsSL https://bun.sh/install | bash`)
 
 ### Konfigurasjon
 
