@@ -172,5 +172,4 @@ dist
 .idea
 
 # project
-tsm
 tsconfig.tsbuildinfo

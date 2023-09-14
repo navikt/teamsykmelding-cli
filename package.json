@@ -3,7 +3,7 @@
     "type": "module",
     "scripts": {
         "tsc": "bun x tsc",
-        "build-cli": "bun build --target bun src/index.ts --compile --outfile tsm"
+        "build-cli": "bun run src/build.ts"
     },
     "dependencies": {
         "@inquirer/prompts": "^3.0.3",
