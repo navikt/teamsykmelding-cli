@@ -44,12 +44,6 @@ function getGithubCliToken(): string {
 
 export type GraphQLResponse<Data> = GraphQlResponse<Data>
 
-type OrgTeamResult<Result> = {
-    organization: {
-        team: Result
-    }
-}
-
 export const BaseRepoNodeFragment = /* GraphQL */ `
     fragment BaseRepoNode on Repository {
         name
@@ -65,6 +59,12 @@ type BaseRepoNode<AdditionalRepoProps> = {
     pushedAt: string
     url: string
 } & AdditionalRepoProps
+
+export type OrgTeamResult<Result> = {
+    organization: {
+        team: Result
+    }
+}
 
 export type OrgTeamRepoResult<AdditionalRepoProps> = OrgTeamResult<{
     repositories: {

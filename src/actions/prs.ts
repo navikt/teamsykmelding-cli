@@ -1,11 +1,11 @@
 import * as R from 'remeda'
 import { parseISO } from 'date-fns'
-import {BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived} from '../common/octokit.ts'
+import chalk from 'chalk'
+
+import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../common/octokit.ts'
 import { log } from '../common/log.ts'
-import chalk, { backgroundColorNames } from 'chalk'
-import { blacklisted } from '../common/repos.ts'
 import { coloredTimestamp } from '../common/date-utils.ts'
-import * as crypto from 'crypto'
+import { authorToColorAvatar } from '../common/format-utils.ts'
 
 type PrNode = {
     title: string
@@ -75,13 +75,6 @@ async function getPrs(team: string, includeDrafts = false): Promise<Record<strin
     log(`Found ${chalk.greenBright(Object.values(openPrs).flat().length)} open prs for team ${team}\n`)
 
     return openPrs
-}
-
-function authorToColorAvatar(username: string) {
-    const index =
-        parseInt(crypto.createHash('md5').update(username).digest('hex').slice(-6), 16) % backgroundColorNames.length
-
-    return chalk[backgroundColorNames[index]]('  ')
 }
 
 export async function openPrs(includeDrafts: boolean): Promise<void> {
