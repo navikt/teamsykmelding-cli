@@ -9,7 +9,7 @@ import { log } from './common/log.ts'
 
 const cacheDir = path.join(Bun.env.HOME ?? '~', '.cache', 'tsm')
 
-export function hasNewVersion(): Promise<string | null> {
+export function hasNewVersion(): string | null {
     const sub = Bun.spawnSync('npm view @navikt/teamsykmelding-cli@latest versions --json'.split(' '))
     const result = JSON.parse(sub.stdout.toString()).at(-1)
 

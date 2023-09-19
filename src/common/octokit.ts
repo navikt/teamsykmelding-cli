@@ -21,7 +21,7 @@ export function getOctokitClient(auth: 'cli' | 'package' = 'cli'): Octokit {
 export async function ghGqlQuery<Result = never>(
     query: string,
     variables?: Record<string, unknown>,
-): Promise<GraphQLResponse<Result>> {
+): GraphQLResponse<Result> {
     return getOctokitClient().graphql<GraphQLResponse<Result>>(query, variables)
 }
 

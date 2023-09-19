@@ -11,6 +11,7 @@ import { openPrs } from './actions/prs.ts'
 import { getRepoMainBranch } from './actions/repo-metadata.ts'
 import { getRepos } from './actions/repos.ts'
 import { displayMembers } from './actions/team.ts'
+import { queryForRelevantRepos } from './actions/repo-query.ts'
 
 if (Bun.argv.find((it) => it.includes('check-version')) == null) {
     // Only spawn a background version check all other args, or else we get a infinite loop of spawns
@@ -57,7 +58,17 @@ await yargs(hideBin(process.argv))
             yargs.positional('drafts', { type: 'boolean', default: false, describe: 'include draft pull requests' }),
         async (args) => openPrs(args.drafts),
     )
-    .command('repos', 'get all repos', async () => getRepos())
+    .command(
+        'repos',
+        'get all repos',
+        (yargs) =>
+            yargs.positional('query', {
+                type: 'string',
+                demandOption: false,
+                describe: 'execute this bash command in all repos and return all repos that give the error code 0',
+            }),
+        async (args) => (args.query ? queryForRelevantRepos(args.query) : getRepos()),
+    )
     .command('team', 'get all team members', async () => displayMembers())
     .command(
         'primary-branch',
