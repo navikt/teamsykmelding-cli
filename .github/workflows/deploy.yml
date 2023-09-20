@@ -24,6 +24,7 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run tsc
       - run: bun run build-cli
+      - run: bun run sanity-check
       - uses: actions/setup-node@v3
         with:
           node-version: 18

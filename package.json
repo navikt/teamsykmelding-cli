@@ -3,7 +3,9 @@
     "type": "module",
     "scripts": {
         "tsc": "bun x tsc",
-        "build-cli": "bun run src/build.ts"
+        "build": "bun run build-cli && bun run sanity-check",
+        "build-cli": "bun run src/build.ts",
+        "sanity-check": "./tsm-cli/bin/tsm --help"
     },
     "dependencies": {
         "@inquirer/prompts": "^3.1.1",

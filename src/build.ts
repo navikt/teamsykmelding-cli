@@ -16,8 +16,6 @@ const outputWriter = Bun.file('./tsm-cli/bin/tsm').writer()
 outputWriter.write('#!/usr/bin/env bun\n')
 outputWriter.write(await artifact.text())
 
-const bytesWritten = await outputWriter.end()
-
 Bun.spawnSync('chmod +x ./tsm-cli/bin/tsm'.split(' '), { stdout: 'inherit' })
 
 console.info(
