@@ -12,6 +12,7 @@ import { getRepoMainBranch } from './actions/repo-metadata.ts'
 import { getRepos } from './actions/repos.ts'
 import { displayMembers } from './actions/team.ts'
 import { queryForRelevantRepos } from './actions/repo-query.ts'
+import {syncFileAcrossRepos} from "./actions/sync-file.ts";
 
 if (Bun.argv.find((it) => it.includes('check-version')) == null) {
     // Only spawn a background version check all other args, or else we get a infinite loop of spawns
@@ -68,6 +69,17 @@ await yargs(hideBin(process.argv))
                 describe: 'execute this bash command in all repos and return all repos that give the error code 0',
             }),
         async (args) => (args.query ? queryForRelevantRepos(args.query) : getRepos()),
+    )
+    .command(
+        'sync-file',
+        'sync a file across specified repos',
+        (yargs) =>
+            yargs.positional('query', {
+                type: 'string',
+                demandOption: true,
+                describe: 'execute this bash command in all repos and return all repos that give the error code 0',
+            }),
+        async (args) => syncFileAcrossRepos(args.query),
     )
     .command('team', 'get all team members', async () => displayMembers())
     .command(
