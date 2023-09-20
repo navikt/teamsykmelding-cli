@@ -25,12 +25,9 @@ export function createRepoGitClient(repo: string): SimpleGit {
 
 async function pull(repo: string, silent: boolean): Promise<'updated'> {
     const t1 = performance.now()
-    await createRepoGitClient(repo)
-        .clean([CleanOptions.FORCE, CleanOptions.RECURSIVE])
-        .reset(ResetMode.HARD, ['origin/HEAD'])
-        .pull({
-            '--rebase': null,
-        })
+    await createRepoGitClient(repo).reset(ResetMode.HARD).clean([CleanOptions.FORCE, CleanOptions.RECURSIVE]).pull({
+        '--rebase': null,
+    })
 
     if (!silent) {
         console.info(`${repo}, exists, pulled OK (${Math.round(performance.now() - t1)}ms)`)
