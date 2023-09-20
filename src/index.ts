@@ -13,7 +13,11 @@ import { getRepos } from './actions/repos.ts'
 import { displayMembers } from './actions/team.ts'
 import { queryForRelevantRepos } from './actions/repo-query.ts'
 
-if (Bun.argv.find((it) => it.includes('check-version')) == null) {
+if (
+    Bun.argv.find((it) => it.includes('check-version')) == null &&
+    // when sanity checking bundle, don't look for new updates
+    !Bun.argv[1].includes('tsm-cli/bin')
+) {
     // Only spawn a background version check all other args, or else we get a infinite loop of spawns
     Bun.spawn('tsm check-version'.split(' ')).unref()
 
