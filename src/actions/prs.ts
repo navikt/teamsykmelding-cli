@@ -52,8 +52,17 @@ const reposQuery = /* GraphQL */ `
     ${BaseRepoNodeFragment}
 `
 
-async function getPrs(team: string, includeDrafts = false): Promise<Record<string, PrNode[]>> {
-    log(chalk.green(`Getting all open prs for team ${team}${includeDrafts ? ' (including drafts)' : ''}`))
+async function getPrs(
+    team: string,
+    opts: { includeDrafts: boolean; noBot: boolean },
+): Promise<Record<string, PrNode[]>> {
+    log(
+        chalk.green(
+            `Getting all open prs for team ${team}${opts.includeDrafts ? ' (including drafts)' : ''}${
+                opts.noBot ? ' (without bots)' : ''
+            }`,
+        ),
+    )
 
     const queryResult = await ghGqlQuery<OrgTeamRepoResult<PullRequestNode>>(reposQuery, { team })
 
@@ -65,7 +74,8 @@ async function getPrs(team: string, includeDrafts = false): Promise<Record<strin
                 repo.pullRequests.nodes,
                 R.map((pr): [string, PrNode] => [repo.name, pr]),
                 R.sortBy(([, pr]) => pr.updatedAt),
-                R.filter(([, pr]) => includeDrafts || !pr.isDraft),
+                R.filter(([, pr]) => opts.includeDrafts || !pr.isDraft),
+                R.filter(([, pr]) => !opts.noBot || !pr.author.login.includes('dependabot')),
             ),
         ),
         R.groupBy(([repo]) => repo),
@@ -77,8 +87,8 @@ async function getPrs(team: string, includeDrafts = false): Promise<Record<strin
     return openPrs
 }
 
-export async function openPrs(includeDrafts: boolean): Promise<void> {
-    const openPrs = await getPrs('teamsykmelding', includeDrafts)
+export async function openPrs(includeDrafts: boolean, noBot: boolean): Promise<void> {
+    const openPrs = await getPrs('teamsykmelding', { includeDrafts, noBot })
 
     R.pipe(
         openPrs,

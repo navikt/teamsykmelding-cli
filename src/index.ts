@@ -59,8 +59,10 @@ await yargs(hideBin(process.argv))
         'prs',
         'get all open pull requests',
         (yargs) =>
-            yargs.positional('drafts', { type: 'boolean', default: false, describe: 'include draft pull requests' }),
-        async (args) => openPrs(args.drafts),
+            yargs
+                .option('skip-bots', { type: 'boolean', alias: 'b', describe: "don't include bot pull requests" })
+                .positional('drafts', { type: 'boolean', default: false, describe: 'include draft pull requests' }),
+        async (args) => openPrs(args.drafts, args.skipBots ?? false),
     )
     .command(
         'repos',
@@ -86,20 +88,21 @@ await yargs(hideBin(process.argv))
         async (args) => getRepoMainBranch(args.showMain),
     )
     .command(
-        'update',
+        'upgrade',
         'update the cli',
         (yargs) => yargs,
         async () => updateToNewestVersion(),
     )
     .command(
-        'check-version',
+        'update',
         'see if there is a new version for this cli',
         (yargs) => yargs,
         async () => {
-            const newVersion = await hasNewVersion()
+            const newVersion = hasNewVersion()
             if (newVersion != null) {
                 await writeNewVersionCache(newVersion)
                 log(`New version available! ${chalk.yellow(packageJson.version)} -> ${chalk.green(newVersion)}`)
+                log(`Run ${chalk.cyan('tsm upgrade')} to upgrade`)
             } else {
                 log(chalk.green(`You are on the latest version!`))
             }
