@@ -14,21 +14,21 @@ import { displayMembers } from './actions/team.ts'
 import { queryForRelevantRepos } from './actions/repo-query.ts'
 
 if (
-    Bun.argv.find((it) => it.includes('check-version')) == null &&
+    Bun.argv.find((it) => it.includes('update')) == null &&
     // when sanity checking bundle, don't look for new updates
     !Bun.argv[1].includes('tsm-cli/bin')
 ) {
     // Only spawn a background version check all other args, or else we get a infinite loop of spawns
-    Bun.spawn('tsm check-version'.split(' ')).unref()
+    Bun.spawn('tsm update'.split(' ')).unref()
 
-    if (Bun.argv.find((it) => it === 'update') == null) {
+    if (Bun.argv.find((it) => it === 'upgrade') == null) {
         // Check cache and notify if there is a new version
         const newVersion = await hasNewVersionCached()
         if (newVersion) {
             log(
                 `\n\tNew version available! ${chalk.yellow(packageJson.version)} -> ${chalk.green(
                     newVersion,
-                )}\n\n\tRun ${chalk.cyan('tsm update')} to update\n`,
+                )}\n\n\tRun ${chalk.cyan('tsm upgrade')} to upgrade\n`,
             )
         }
     }
