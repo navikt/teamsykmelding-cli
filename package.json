@@ -3,7 +3,7 @@
     "type": "module",
     "scripts": {
         "tsc": "bun x tsc",
-        "build": "bun run build-cli && bun run sanity-check",
+        "build": "rm tsm-cli/bin/tsm && bun run build-cli && bun run sanity-check",
         "build-cli": "bun run src/build.ts",
         "sanity-check": "./tsm-cli/bin/tsm --help"
     },
