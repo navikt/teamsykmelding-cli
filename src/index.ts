@@ -75,7 +75,16 @@ await yargs(hideBin(process.argv))
             }),
         async (args) => (args.query ? queryForRelevantRepos(args.query) : getRepos()),
     )
-    .command('team', 'get all team members', async () => displayMembers())
+    .command(
+        'team',
+        'get all team members',
+        (yargs) =>
+            yargs.positional('name', {
+                type: 'string',
+                description: 'override team to look up, ex: tsm team --name=flex',
+            }),
+        async (yargs) => displayMembers(yargs.name ?? null),
+    )
     .command(
         'primary-branch',
         'get misc repo metadata',

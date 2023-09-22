@@ -30,8 +30,8 @@ const reposQuery = /* GraphQL */ `
     }
 `
 
-export async function displayMembers(): Promise<void> {
-    const team = 'teamsykmelding'
+export async function displayMembers(name: string | null): Promise<void> {
+    const team = name ?? 'teamsykmelding'
 
     log(chalk.green(`Getting team members for team ${team}`))
 
