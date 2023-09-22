@@ -1,6 +1,6 @@
 import * as R from 'remeda'
 import { Gitter } from '../common/git.ts'
-import { log } from '../common/log.ts'
+import { log, logProgressDot } from '../common/log.ts'
 import chalk from 'chalk'
 import { ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../common/octokit.ts'
 
@@ -39,6 +39,12 @@ async function getAllRepos() {
 export async function pullAllRepositories(gitDir: string) {
     const gitter = new Gitter({ type: 'user-config', dir: gitDir })
     const allRepos = await getAllRepos()
+
+    log(chalk.green(`Updating ${allRepos.length} repositories...`))
+    logProgressDot()
+    setTimeout(() => logProgressDot(), 250)
+    setTimeout(() => logProgressDot(), 500)
+
     const results = await Promise.allSettled(
         allRepos.map(async (it) => {
             try {

@@ -2,7 +2,6 @@ import fs from 'node:fs'
 import path from 'node:path'
 import simpleGit, { CleanOptions, ResetMode, SimpleGit } from 'simple-git'
 import { GIT_CACHE_DIR } from './cache.ts'
-import chalk, { colorNames } from 'chalk'
 import { logProgressDot } from './log.ts'
 
 type GitterType = 'cache' | { type: 'user-config'; dir: string }
@@ -44,7 +43,6 @@ export class Gitter {
         defaultBranch: string,
         silent: boolean,
     ): Promise<'updated' | { type: 'error'; message: string }> {
-        logProgressDot()
         const t1 = performance.now()
         const repoClient = this.createRepoGitClient(repo)
 
@@ -79,7 +77,6 @@ export class Gitter {
     private async clone(repo: string, silent: boolean, shallow: boolean): Promise<'cloned'> {
         const remote = `git@github.com:navikt/${repo}.git`
 
-        logProgressDot()
         const t1 = performance.now()
         await this.git.clone(remote, repo, shallow ? { '--depth': 1 } : undefined)
 
