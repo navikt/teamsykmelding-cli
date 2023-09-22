@@ -6,8 +6,7 @@ import chalk from 'chalk'
 import packageJson from '../tsm-cli/package.json'
 
 import { log } from './common/log.ts'
-
-const cacheDir = path.join(Bun.env.HOME ?? '~', '.cache', 'tsm')
+import { CACHE_DIR } from './common/cache.ts'
 
 export function hasNewVersion(): string | null {
     const sub = Bun.spawnSync('npm view @navikt/teamsykmelding-cli@latest versions --json'.split(' '))
@@ -33,14 +32,14 @@ export function updateToNewestVersion(): void {
 
             process.exit(1)
         }
-        fs.rmSync(path.join(cacheDir, 'metadata.json'))
+        fs.rmSync(path.join(CACHE_DIR, 'metadata.json'))
     } else {
         log(chalk.green(`You are on the latest version!`))
     }
 }
 
 export async function hasNewVersionCached(): Promise<string | null> {
-    const versionFile = Bun.file(path.join(cacheDir, 'metadata.json'))
+    const versionFile = Bun.file(path.join(CACHE_DIR, 'metadata.json'))
     if (!(await versionFile.exists())) return null
 
     const file = await versionFile.json()
@@ -48,16 +47,16 @@ export async function hasNewVersionCached(): Promise<string | null> {
 }
 
 export async function writeNewVersionCache(version: string) {
-    fs.mkdirSync(cacheDir, { recursive: true })
-    await Bun.write(path.join(cacheDir, 'metadata.json'), JSON.stringify({ newVersion: version }))
+    fs.mkdirSync(CACHE_DIR, { recursive: true })
+    await Bun.write(path.join(CACHE_DIR, 'metadata.json'), JSON.stringify({ newVersion: version }))
 }
 
 export async function unsetNewVersionCache() {
-    fs.rmSync(path.join(cacheDir, 'metadata.json'))
+    fs.rmSync(path.join(CACHE_DIR, 'metadata.json'))
 }
 
 if (Bun.argv.find((it) => it.includes('self-updater.ts'))) {
-    const newVersion = await hasNewVersion()
+    const newVersion = hasNewVersion()
     if (newVersion != null) {
         await writeNewVersionCache(newVersion)
     } else {

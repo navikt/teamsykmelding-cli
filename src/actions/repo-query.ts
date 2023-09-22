@@ -1,8 +1,10 @@
 import * as R from 'remeda'
-import { ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../common/octokit.ts'
-import { cloneOrPull, GIT_DIR } from '../common/git.ts'
-import { log } from '../common/log.ts'
 import chalk from 'chalk'
+
+import { ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../common/octokit.ts'
+import { Gitter } from '../common/git.ts'
+import { log } from '../common/log.ts'
+import { GIT_CACHE_DIR } from '../common/cache.ts'
 
 const reposQuery = /* GraphQL */ `
     query ($team: String!) {
@@ -32,8 +34,9 @@ async function getAllRepos() {
 }
 
 async function cloneAllRepos() {
+    const gitter = new Gitter('cache')
     const repos = await getAllRepos()
-    const results = await Promise.all(repos.map((it) => cloneOrPull(it.name, true)))
+    const results = await Promise.all(repos.map((it) => gitter.cloneOrPull(it.name, true)))
 
     log(
         `Updated ${chalk.yellow(results.filter((it) => it === 'updated').length)} and cloned ${chalk.yellow(
@@ -46,7 +49,7 @@ async function cloneAllRepos() {
 
 function queryRepo(query: string, repo: string) {
     const result = Bun.spawnSync(query.split(' '), {
-        cwd: `${GIT_DIR}/${repo}`,
+        cwd: `${GIT_CACHE_DIR}/${repo}`,
     })
 
     return result.exitCode === 0
@@ -69,4 +72,3 @@ export async function queryForRelevantRepos(query: string) {
     log(`The following ${chalk.green('repos')} match the query ${chalk.yellow(query)}:`)
     log(relevantRepos.map((it) => ` - ${it.name} (${it.url})`).join('\n'))
 }
-
