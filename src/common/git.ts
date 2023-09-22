@@ -1,54 +1,111 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import simpleGit, { CleanOptions, ResetMode, SimpleGit } from 'simple-git'
+import { GIT_CACHE_DIR } from './cache.ts'
 
-export const GIT_DIR = path.join(Bun.env.HOME ?? '~', '.cache', 'tsm', 'repos')
+type GitterType = 'cache' | { type: 'user-config'; dir: string }
 
-fs.mkdirSync(GIT_DIR, { recursive: true })
-const git = simpleGit({
-    baseDir: GIT_DIR,
-    binary: 'git',
-    maxConcurrentProcesses: 10,
-})
+export class Gitter {
+    private readonly type: GitterType
+    private readonly git: SimpleGit
 
-export async function cloneOrPull(repo: string, silent = false): Promise<'updated' | 'cloned'> {
-    return exists(repo) ? pull(repo, silent) : clone(repo, silent)
-}
+    constructor(type: GitterType) {
+        this.type = type
+        if (type === 'cache') {
+            fs.mkdirSync(GIT_CACHE_DIR, { recursive: true })
 
-export function createRepoGitClient(repo: string): SimpleGit {
-    return simpleGit({
-        baseDir: `${GIT_DIR}/${repo}`,
-        binary: 'git',
-        maxConcurrentProcesses: 1,
-    })
-}
-
-async function pull(repo: string, silent: boolean): Promise<'updated'> {
-    const t1 = performance.now()
-    await createRepoGitClient(repo).reset(ResetMode.HARD).clean([CleanOptions.FORCE, CleanOptions.RECURSIVE]).pull({
-        '--rebase': null,
-    })
-
-    if (!silent) {
-        console.info(`${repo}, exists, pulled OK (${Math.round(performance.now() - t1)}ms)`)
+            this.git = simpleGit({
+                baseDir: GIT_CACHE_DIR,
+                binary: 'git',
+                maxConcurrentProcesses: 10,
+            })
+        } else {
+            this.git = simpleGit({
+                baseDir: type.dir,
+                binary: 'git',
+                maxConcurrentProcesses: 10,
+            })
+        }
     }
 
-    return 'updated'
-}
-
-async function clone(repo: string, silent: boolean): Promise<'cloned'> {
-    const remote = `git@github.com:navikt/${repo}.git`
-
-    const t1 = performance.now()
-    await git.clone(remote, repo, { '--depth': 1 })
-
-    if (!silent) {
-        console.info(`Cloned ${repo} OK (${Math.round(performance.now() - t1)}ms))`)
+    public async cloneOrPull(
+        repo: string,
+        defaultBranch: string,
+        silent = false,
+        shallow = false,
+    ): Promise<'updated' | 'cloned' | { type: 'error'; message: string }> {
+        return this.exists(repo) ? this.pull(repo, defaultBranch, silent) : this.clone(repo, silent, shallow)
     }
 
-    return 'cloned'
-}
+    private async pull(
+        repo: string,
+        defaultBranch: string,
+        silent: boolean,
+    ): Promise<'updated' | { type: 'error'; message: string }> {
+        const t1 = performance.now()
+        const repoClient = this.createRepoGitClient(repo)
 
-function exists(repo: string): boolean {
-    return fs.existsSync(path.join(GIT_DIR, repo))
+        if (this.type === 'cache') {
+            repoClient.reset(ResetMode.HARD).clean([CleanOptions.FORCE, CleanOptions.RECURSIVE]).pull({
+                '--rebase': null,
+            })
+        } else {
+            try {
+                const currentBranch = await repoClient.revparse(['--abbrev-ref', 'HEAD'])
+                if (currentBranch.trim() === defaultBranch) {
+                    await repoClient.pull({ '--rebase': null })
+                } else {
+                    await repoClient.fetch('origin', `${defaultBranch}:${defaultBranch}`)
+                }
+            } catch (e) {
+                return {
+                    type: 'error',
+                    message: (e as Error).message,
+                }
+            }
+        }
+
+        if (!silent) {
+            console.info(`${repo}, exists, pulled OK (${Math.round(performance.now() - t1)}ms)`)
+        }
+
+        return 'updated'
+    }
+
+    private async clone(repo: string, silent: boolean, shallow: boolean): Promise<'cloned'> {
+        const remote = `git@github.com:navikt/${repo}.git`
+
+        const t1 = performance.now()
+        await this.git.clone(remote, repo, shallow ? { '--depth': 1 } : undefined)
+
+        if (!silent) {
+            console.info(`Cloned ${repo}${shallow ? ' (shallow)' : ''} OK (${Math.round(performance.now() - t1)}ms))`)
+        }
+
+        return 'cloned'
+    }
+
+    private createRepoGitClient(repo: string): SimpleGit {
+        if (this.type === 'cache') {
+            return simpleGit({
+                baseDir: `${GIT_CACHE_DIR}/${repo}`,
+                binary: 'git',
+                maxConcurrentProcesses: 1,
+            })
+        } else {
+            return simpleGit({
+                baseDir: `${this.type.dir}/${repo}`,
+                binary: 'git',
+                maxConcurrentProcesses: 1,
+            })
+        }
+    }
+
+    private exists(repo: string): boolean {
+        if (this.type === 'cache') {
+            return fs.existsSync(path.join(GIT_CACHE_DIR, repo))
+        } else {
+            return fs.existsSync(path.join(this.type.dir, repo))
+        }
+    }
 }

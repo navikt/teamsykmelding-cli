@@ -1,6 +1,7 @@
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import chalk from 'chalk'
+import fs from 'node:fs'
 
 import { checkTooling } from './actions/check.ts'
 import { lastCommits } from './actions/last-commits.ts'
@@ -12,6 +13,8 @@ import { getRepoMainBranch } from './actions/repo-metadata.ts'
 import { getRepos } from './actions/repos.ts'
 import { displayMembers } from './actions/team.ts'
 import { queryForRelevantRepos } from './actions/repo-query.ts'
+import { getConfig, updateConfig } from './common/config.ts'
+import { pullAllRepositories } from './actions/git.ts'
 
 if (
     Bun.argv.find((it) => it.includes('update')) == null &&
@@ -76,6 +79,24 @@ await yargs(hideBin(process.argv))
         async (args) => (args.query ? queryForRelevantRepos(args.query) : getRepos()),
     )
     .command(
+        'git',
+        'keep our repos in sync, ex: tsm git sync',
+        (yargs) =>
+            yargs.command('sync', 'Clone and/or update all repos (with no unstaged changes)', async () => {
+                const config = await getConfig()
+                if (config.gitDir == null) {
+                    log(`${chalk.red('Git dir not set, run: ')}${chalk.yellow('tsm config --git-dir=<dir>')}`)
+                    process.exit(1)
+                }
+
+                await pullAllRepositories(config.gitDir)
+            }),
+        () => {
+            log('Use one of the following commands:')
+            log('\ttsm git sync')
+        },
+    )
+    .command(
         'team',
         'get all team members',
         (yargs) =>
@@ -95,6 +116,30 @@ await yargs(hideBin(process.argv))
                 describe: 'include main branches in output',
             }),
         async (args) => getRepoMainBranch(args.showMain),
+    )
+    .command(
+        'config',
+        'set config for tsm',
+        (yargs) =>
+            yargs.positional('git-dir', {
+                type: 'string',
+                describe: 'set the git dir to use for tsm git commands',
+            }),
+        async (args) => {
+            if (args.gitDir) {
+                if (!(fs.existsSync(args.gitDir) && fs.statSync(args.gitDir).isDirectory())) {
+                    log(`${chalk.red('Git dir does not exist: ')}${chalk.yellow(args.gitDir)}`)
+                    log(`Please provide a full path to an existing directory. :)`)
+                    if (args.gitDir.includes('~')) {
+                        log('Hint: ~ is not expanded in node, use $HOME instead')
+                    }
+                    process.exit(1)
+                }
+                await updateConfig({
+                    gitDir: args.gitDir,
+                })
+            }
+        },
     )
     .command(
         'upgrade',
