@@ -36,6 +36,12 @@ export async function displayMembers(name: string | null): Promise<void> {
     log(chalk.green(`Getting team members for team ${team}`))
 
     const queryResult = await ghGqlQuery<OrgTeamResult<MemberNodes>>(reposQuery, { team })
+
+    if (queryResult.organization.team == null) {
+        log(`${chalk.red(`\nCould not find team "${team}"`)}\n\nAre you sure you provided the correct team name?`)
+        process.exit(1)
+    }
+
     const members = queryResult.organization.team.members.nodes
 
     log(`Found ${chalk.greenBright(members.length)} members in team ${team}!`)
