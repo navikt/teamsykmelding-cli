@@ -6,6 +6,8 @@ import { Gitter } from '../common/git.ts'
 import { log } from '../common/log.ts'
 import { GIT_CACHE_DIR } from '../common/cache.ts'
 
+type RepoWithBranch = { defaultBranchRef: { name: string } }
+
 const reposQuery = /* GraphQL */ `
     query ($team: String!) {
         organization(login: "navikt") {
@@ -16,6 +18,9 @@ const reposQuery = /* GraphQL */ `
                         isArchived
                         pushedAt
                         url
+                        defaultBranchRef {
+                            name
+                        }
                     }
                 }
             }
@@ -26,7 +31,7 @@ const reposQuery = /* GraphQL */ `
 async function getAllRepos() {
     log(chalk.green(`Getting all active repositories for team teamsykmelding...`))
 
-    const result = await ghGqlQuery<OrgTeamRepoResult<unknown>>(reposQuery, {
+    const result = await ghGqlQuery<OrgTeamRepoResult<RepoWithBranch>>(reposQuery, {
         team: 'teamsykmelding',
     })
 
@@ -36,7 +41,9 @@ async function getAllRepos() {
 async function cloneAllRepos() {
     const gitter = new Gitter('cache')
     const repos = await getAllRepos()
-    const results = await Promise.all(repos.map((it) => gitter.cloneOrPull(it.name, true)))
+    const results = await Promise.all(
+        repos.map((it) => gitter.cloneOrPull(it.name, it.defaultBranchRef.name, true, true)),
+    )
 
     log(
         `Updated ${chalk.yellow(results.filter((it) => it === 'updated').length)} and cloned ${chalk.yellow(
