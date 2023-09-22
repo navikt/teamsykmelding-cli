@@ -48,6 +48,7 @@ export async function pullAllRepositories(gitDir: string) {
             }
         }),
     )
+    process.stdout.write(' :D\n')
 
     const niceNice: [repo: string, status: 'updated' | 'cloned'][] = results
         .filter((it) => it.status === 'fulfilled' && typeof it.value[1] !== 'object')
@@ -82,4 +83,3 @@ export async function pullAllRepositories(gitDir: string) {
         log(rejects.map(([repo, error]) => `   - ${chalk.yellow(repo)}: ${chalk.red(error.message.trim())}`).join('\n'))
     }
 }
-
