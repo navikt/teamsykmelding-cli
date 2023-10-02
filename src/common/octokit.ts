@@ -50,6 +50,9 @@ export const BaseRepoNodeFragment = /* GraphQL */ `
         isArchived
         pushedAt
         url
+        defaultBranchRef {
+            name
+        }
     }
 `
 
@@ -58,6 +61,9 @@ type BaseRepoNode<AdditionalRepoProps> = {
     isArchived: boolean
     pushedAt: string
     url: string
+    defaultBranchRef: {
+        name: string
+    }
 } & AdditionalRepoProps
 
 export type OrgTeamResult<Result> = {

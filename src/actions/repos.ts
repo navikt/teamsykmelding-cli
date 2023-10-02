@@ -2,9 +2,12 @@ import * as R from 'remeda'
 import chalk from 'chalk'
 
 import { log } from '../common/log.ts'
-import { getOctokitClient, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../common/octokit.ts'
-import { blacklisted } from '../common/repos.ts'
-import { GraphQlResponse } from '@octokit/graphql/dist-types/types'
+import {
+    BaseRepoNodeFragment,
+    ghGqlQuery,
+    OrgTeamRepoResult,
+    removeIgnoredAndArchived,
+} from '../common/octokit.ts'
 import { coloredTimestamp } from '../common/date-utils.ts'
 import { parseISO } from 'date-fns'
 
@@ -21,10 +24,7 @@ const reposQuery = /* GraphQL */ `
             team(slug: $team) {
                 repositories(orderBy: { field: PUSHED_AT, direction: DESC }) {
                     nodes {
-                        name
-                        isArchived
-                        pushedAt
-                        url
+                        ...BaseRepoNode
                         primaryLanguage {
                             color
                             name
@@ -34,6 +34,8 @@ const reposQuery = /* GraphQL */ `
             }
         }
     }
+
+    ${BaseRepoNodeFragment}
 `
 
 export async function getRepos() {

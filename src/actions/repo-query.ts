@@ -1,12 +1,10 @@
 import * as R from 'remeda'
 import chalk from 'chalk'
 
-import { ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../common/octokit.ts'
+import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../common/octokit.ts'
 import { Gitter } from '../common/git.ts'
 import { log } from '../common/log.ts'
 import { GIT_CACHE_DIR } from '../common/cache.ts'
-
-type RepoWithBranch = { defaultBranchRef: { name: string } }
 
 const reposQuery = /* GraphQL */ `
     query ($team: String!) {
@@ -14,24 +12,20 @@ const reposQuery = /* GraphQL */ `
             team(slug: $team) {
                 repositories(orderBy: { field: PUSHED_AT, direction: DESC }) {
                     nodes {
-                        name
-                        isArchived
-                        pushedAt
-                        url
-                        defaultBranchRef {
-                            name
-                        }
+                        ...BaseRepoNode
                     }
                 }
             }
         }
     }
+
+    ${BaseRepoNodeFragment}
 `
 
 async function getAllRepos() {
     log(chalk.green(`Getting all active repositories for team teamsykmelding...`))
 
-    const result = await ghGqlQuery<OrgTeamRepoResult<RepoWithBranch>>(reposQuery, {
+    const result = await ghGqlQuery<OrgTeamRepoResult<unknown>>(reposQuery, {
         team: 'teamsykmelding',
     })
 
