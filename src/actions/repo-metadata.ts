@@ -24,7 +24,7 @@ const reposQuery = /* GraphQL */ `
     query OurRepos($team: String!) {
         organization(login: "navikt") {
             team(slug: $team) {
-                repositories(orderBy: { field: PUSHED_AT, direction: ASC }) {
+                repositories(orderBy: { field: PUSHED_AT, direction: DESC }) {
                     nodes {
                         ...BaseRepoNode
                         defaultBranchRef {

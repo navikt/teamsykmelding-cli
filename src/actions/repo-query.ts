@@ -12,7 +12,7 @@ const reposQuery = /* GraphQL */ `
     query ($team: String!) {
         organization(login: "navikt") {
             team(slug: $team) {
-                repositories(orderBy: { field: PUSHED_AT, direction: ASC }) {
+                repositories(orderBy: { field: PUSHED_AT, direction: DESC }) {
                     nodes {
                         name
                         isArchived
