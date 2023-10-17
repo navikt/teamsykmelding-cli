@@ -30,7 +30,7 @@ lib-cov
 coverage
 \*.lcov
 
-# nyc test coverage
+# nyc open coverage
 
 .nyc_output
 
@@ -168,7 +168,7 @@ dist
 .yarn/install-state.gz
 .pnp.\*
 
-# idea
+# open
 .idea
 
 # project

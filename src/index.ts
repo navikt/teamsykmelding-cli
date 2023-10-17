@@ -15,6 +15,7 @@ import { displayMembers } from './actions/team.ts'
 import { queryForRelevantRepos } from './actions/repo-query.ts'
 import { getConfig, updateConfig } from './common/config.ts'
 import { pullAllRepositories } from './actions/git.ts'
+import {open} from "./actions/open.ts";
 
 if (
     Bun.argv.find((it) => it.includes('update')) == null &&
@@ -161,6 +162,18 @@ await yargs(hideBin(process.argv))
                 log(chalk.green(`You are on the latest version!`))
             }
         },
+    )
+    .command(
+        'open [project]',
+        'open command that opens a project in IntelliJ IDEA',
+        (yargs) => yargs.positional('project', {
+            type: 'string',
+            description: 'project to open',
+            default: null,
+        }),
+        async (args   ) => {
+            await open(args.project??null)
+        }
     )
     .demandCommand()
     .strict()
