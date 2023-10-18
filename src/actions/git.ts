@@ -1,8 +1,16 @@
-import * as R from 'remeda'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import chalk from 'chalk'
+
 import { Gitter } from '../common/git.ts'
 import { log, logProgressDot } from '../common/log.ts'
-import chalk from 'chalk'
-import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../common/octokit.ts'
+import {
+    BaseRepoNode,
+    BaseRepoNodeFragment,
+    ghGqlQuery,
+    OrgTeamRepoResult,
+    removeIgnoredAndArchived,
+} from '../common/octokit.ts'
 
 const reposQuery = /* GraphQL */ `
     query ($team: String!) {
@@ -20,7 +28,7 @@ const reposQuery = /* GraphQL */ `
     ${BaseRepoNodeFragment}
 `
 
-async function getAllRepos() {
+async function getAllRepos(): Promise<BaseRepoNode<unknown>[]> {
     log(chalk.green(`Getting all active repositories for team teamsykmelding...`))
 
     const result = await ghGqlQuery<OrgTeamRepoResult<unknown>>(reposQuery, {
@@ -30,7 +38,7 @@ async function getAllRepos() {
     return removeIgnoredAndArchived(result.organization.team.repositories.nodes)
 }
 
-export async function pullAllRepositories(gitDir: string) {
+export async function pullAllRepositories(gitDir: string): Promise<void> {
     const gitter = new Gitter({ type: 'user-config', dir: gitDir })
     const allRepos = await getAllRepos()
 

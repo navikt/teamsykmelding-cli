@@ -1,6 +1,7 @@
 import * as R from 'remeda'
 import chalk from 'chalk'
-import { ghGqlQuery, OrgTeamRepoResult, OrgTeamResult, removeIgnoredAndArchived } from '../common/octokit.ts'
+
+import { ghGqlQuery, OrgTeamResult } from '../common/octokit.ts'
 import { log } from '../common/log.ts'
 import { authorToColorAvatar } from '../common/format-utils.ts'
 

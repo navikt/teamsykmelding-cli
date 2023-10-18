@@ -1,15 +1,10 @@
 import * as R from 'remeda'
 import chalk from 'chalk'
+import { parseISO } from 'date-fns'
 
 import { log } from '../common/log.ts'
-import {
-    BaseRepoNodeFragment,
-    ghGqlQuery,
-    OrgTeamRepoResult,
-    removeIgnoredAndArchived,
-} from '../common/octokit.ts'
+import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../common/octokit.ts'
 import { coloredTimestamp } from '../common/date-utils.ts'
-import { parseISO } from 'date-fns'
 
 type ExtraPropsOnRepo = {
     primaryLanguage: {
@@ -38,7 +33,7 @@ const reposQuery = /* GraphQL */ `
     ${BaseRepoNodeFragment}
 `
 
-export async function getRepos() {
+export async function getRepos(): Promise<void> {
     const team = 'teamsykmelding'
 
     log(chalk.green(`Getting all repositories for team ${team}...`))

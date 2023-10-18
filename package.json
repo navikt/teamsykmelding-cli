@@ -1,35 +1,41 @@
 {
-  "name": "teamsykmelding-cli",
-  "type": "module",
-  "scripts": {
-    "tsc": "bun x tsc",
-    "build": "rimraf tsm-cli/bin/tsm && bun run build-cli && bun run sanity-check",
-    "build-cli": "bun run src/build.ts",
-    "sanity-check": "./tsm-cli/bin/tsm --help"
-  },
-  "dependencies": {
-    "@inquirer/prompts": "^3.1.1",
-    "chalk": "^5.3.0",
-    "date-fns": "^2.30.0",
-    "inquirer": "^9.2.11",
-    "inquirer-autocomplete-prompt": "^3.0.1",
-    "octokit": "^3.1.0",
-    "remeda": "^1.26.0",
-    "simple-git": "^3.19.1",
-    "yargs": "^17.7.2"
-  },
-  "devDependencies": {
-    "@navikt/eslint-config-teamsykmelding": "^4.3.0",
-    "@types/inquirer": "^9.0.4",
-    "@types/inquirer-autocomplete-prompt": "^3.0.1",
-    "@types/yargs": "^17.0.24",
-    "bun-types": "latest",
-    "prettier": "^3.0.3",
-    "rimraf": "^5.0.5",
-    "semver": "^7.5.4"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  },
-  "prettier": "@navikt/eslint-config-teamsykmelding/prettier"
+    "name": "teamsykmelding-cli",
+    "type": "module",
+    "scripts": {
+        "tsc": "bun x tsc",
+        "lint": "bun x eslint src/**/*.ts",
+        "build": "rimraf tsm-cli/bin/tsm && bun run build-cli && bun run sanity-check",
+        "build-cli": "bun run src/build.ts",
+        "sanity-check": "./tsm-cli/bin/tsm --help"
+    },
+    "dependencies": {
+        "@inquirer/prompts": "^3.1.1",
+        "chalk": "^5.3.0",
+        "date-fns": "^2.30.0",
+        "inquirer": "^9.2.11",
+        "inquirer-autocomplete-prompt": "^3.0.1",
+        "octokit": "^3.1.0",
+        "remeda": "^1.26.0",
+        "simple-git": "^3.19.1",
+        "yargs": "^17.7.2"
+    },
+    "devDependencies": {
+        "@navikt/eslint-config-teamsykmelding": "^4.3.0",
+        "@types/inquirer": "^9.0.4",
+        "@types/inquirer-autocomplete-prompt": "^3.0.1",
+        "@types/yargs": "^17.0.24",
+        "@typescript-eslint/eslint-plugin": "^6.8.0",
+        "bun-types": "latest",
+        "eslint": "^8.51.0",
+        "prettier": "^3.0.3",
+        "rimraf": "^5.0.5",
+        "semver": "^7.5.4"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    },
+    "prettier": "@navikt/eslint-config-teamsykmelding/prettier",
+    "eslintConfig": {
+        "extends": "@navikt/eslint-config-teamsykmelding"
+    }
 }

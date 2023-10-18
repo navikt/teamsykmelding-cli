@@ -1,5 +1,6 @@
 import * as R from 'remeda'
 import chalk from 'chalk'
+
 import { log } from '../common/log.ts'
 
 const REQUIRED_CLI = ['gh', 'yarn', 'kubectl', 'nais', 'gcloud'] as const
@@ -11,7 +12,7 @@ const CLI_CHECKS: [cli: (typeof REQUIRED_CLI)[number], check: () => string | nul
     ['gcloud', () => defaultVersionCheck('gcloud --version')],
 ]
 
-export function checkTooling() {
+export function checkTooling(): void {
     const missing = missingClis()
     if (missing.length > 0) {
         log(
@@ -30,7 +31,7 @@ export function checkTooling() {
 
     if (ok.length) {
         log(chalk.green(`The following CLIs are good!`))
-        log(chalk.red(ok.map(([cli, checkResult]) => ` ${chalk.green('✓')} ${chalk.white(cli)}`).join('\n')))
+        log(chalk.red(ok.map(([cli]) => ` ${chalk.green('✓')} ${chalk.white(cli)}`).join('\n')))
     }
 
     if (bad.length) {
@@ -83,6 +84,6 @@ function missingClis(): string[] {
     return REQUIRED_CLI.filter((it) => !hasCli(it))
 }
 
-function hasCli(cli: string) {
+function hasCli(cli: string): boolean {
     return Bun.spawnSync(`which ${cli}`.split(' ')).exitCode === 0
 }

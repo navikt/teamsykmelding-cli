@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { CACHE_DIR } from './cache.ts'
 
 type Config = {

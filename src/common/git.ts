@@ -1,8 +1,10 @@
 import fs from 'node:fs'
 import path from 'node:path'
+
 import simpleGit, { CleanOptions, ResetMode, SimpleGit } from 'simple-git'
+
 import { GIT_CACHE_DIR } from './cache.ts'
-import { logProgressDot } from './log.ts'
+import { log, logProgressDot } from './log.ts'
 
 type GitterType = 'cache' | { type: 'user-config'; dir: string }
 
@@ -67,7 +69,7 @@ export class Gitter {
         }
 
         if (!silent) {
-            console.info(`${repo}, exists, pulled OK (${Math.round(performance.now() - t1)}ms)`)
+            log(`${repo}, exists, pulled OK (${Math.round(performance.now() - t1)}ms)`)
         }
 
         logProgressDot()
@@ -81,7 +83,7 @@ export class Gitter {
         await this.git.clone(remote, repo, shallow ? { '--depth': 1 } : undefined)
 
         if (!silent) {
-            console.info(`Cloned ${repo}${shallow ? ' (shallow)' : ''} OK (${Math.round(performance.now() - t1)}ms))`)
+            log(`Cloned ${repo}${shallow ? ' (shallow)' : ''} OK (${Math.round(performance.now() - t1)}ms))`)
         }
 
         logProgressDot()
