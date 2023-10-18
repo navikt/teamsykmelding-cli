@@ -16,7 +16,6 @@
         "chalk": "^5.3.0",
         "date-fns": "^2.30.0",
         "fs-extra": "^11.1.1",
-        "gluegun": "^5.1.6",
         "inquirer": "^9.2.11",
         "inquirer-autocomplete-prompt": "^3.0.1",
         "octokit": "^3.1.0",
