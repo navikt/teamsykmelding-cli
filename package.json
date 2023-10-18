@@ -4,9 +4,11 @@
     "scripts": {
         "tsc": "bun x tsc",
         "lint": "bun x eslint src/**/*.ts",
+        "lint-staged": "lint-staged",
         "build": "rimraf tsm-cli/bin/tsm && bun run build-cli && bun run sanity-check",
         "build-cli": "bun run src/build.ts",
-        "sanity-check": "./tsm-cli/bin/tsm --help"
+        "sanity-check": "./tsm-cli/bin/tsm --help",
+        "prepare": "husky install"
     },
     "dependencies": {
         "@inquirer/prompts": "^3.1.1",
@@ -27,6 +29,8 @@
         "@typescript-eslint/eslint-plugin": "^6.8.0",
         "bun-types": "latest",
         "eslint": "^8.51.0",
+        "husky": "^8.0.0",
+        "lint-staged": "^15.0.1",
         "prettier": "^3.0.3",
         "rimraf": "^5.0.5",
         "semver": "^7.5.4"
