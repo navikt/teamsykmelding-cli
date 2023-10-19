@@ -16,6 +16,7 @@ import { queryForRelevantRepos } from './actions/repo-query.ts'
 import { getConfig, updateConfig } from './common/config.ts'
 import { pullAllRepositories } from './actions/git.ts'
 import {open} from "./actions/open.ts";
+import {kafkaConfig} from "./actions/kafka.ts";
 
 if (
     Bun.argv.find((it) => it.includes('update')) == null &&
@@ -174,6 +175,24 @@ await yargs(hideBin(process.argv))
         async (args   ) => {
             await open(args.project??null)
         }
+    )
+    .command(
+        'kafka',
+        'kafka cli for kafka stuff',
+        (yargs) =>
+            yargs.command('config [app]', 'get config for app for kcat',
+                (yargs) => yargs.positional('app', {
+                    type: 'string',
+                    default: null,
+                    describe: 'app name'
+                }),
+                async (args) => {
+                await kafkaConfig(args.app)
+            }),
+        () => {
+            log('Use one of the following commands:')
+            log('\ttsm kafka config "app-name"')
+        },
     )
     .demandCommand()
     .strict()

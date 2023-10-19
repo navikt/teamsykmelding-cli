@@ -36,9 +36,8 @@ export async function open(projectDir: string | undefined| null): Promise<void> 
         name: 'selectedFile',
         message: 'Start typing to search for a directory',
         source: function(_: any, input: string) {
-            input = input || myInput;
             return new Promise(function(resolve) {
-                const results = files.filter(file => file.includes(input));
+                const results = files.filter(file => file.includes(input || myInput));
                 resolve(results);
             })
         }
