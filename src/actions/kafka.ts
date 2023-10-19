@@ -120,3 +120,9 @@ export async function kafkaConfig(appname: string | undefined | null): Promise<v
     log(`Saved kafka config to ${basePath}/kafka.config`);
     log(`bootstrap.servers: ${fs.readFileSync(`${secretPath}/KAFKA_BROKERS`, 'utf-8').trim()}`);
 }
+
+export async function cleanup() {
+    fs.removeSync(`${CACHE_DIR}/dev-gcp`)
+    fs.removeSync(`${CACHE_DIR}/prod-gcp`)
+    log(`Removed all kafka files`)
+}
