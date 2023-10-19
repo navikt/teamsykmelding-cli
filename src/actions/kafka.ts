@@ -118,4 +118,5 @@ export async function kafkaConfig(appname: string | undefined | null): Promise<v
     saveJavaConfig(`${secretPath}`, `${basePath}/kafka.config`);
     log(`Saved KafkaCat config to ${basePath}/kcat.config`);
     log(`Saved kafka config to ${basePath}/kafka.config`);
+    log(`bootstrap.servers: ${fs.readFileSync(`${secretPath}/KAFKA_BROKERS`, 'utf-8').trim()}`);
 }
