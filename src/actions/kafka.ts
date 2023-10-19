@@ -10,12 +10,12 @@ import { log } from '../common/log.ts'
 
 inquirer.registerPrompt('autocomplete', autocomplete)
 
-function saveSecretToPath(secretData: any, path: string) {
+function saveSecretToPath(secretData: any, path: string) : void {
     Object.keys(secretData).forEach((key) => {
         // Decode from base64 and save to path
-        const decodedValue = Buffer.from(secretData[key], 'base64').toString('utf-8')
-        fs.outputFileSync(`${path}/${key}`, decodedValue)
-    })
+        const decodedValue = Buffer.from(secretData[key], 'base64');
+        fs.writeFileSync(`${path}/${key}`, decodedValue);
+    });
 }
 function getAllAppNames(pods: any[]): Map<string, any[]> {
     const appPodMap = new Map<string, any>()
@@ -62,18 +62,36 @@ async function promptForAppName(appPodMap: Map<string, any>, appname: string | u
     }
 }
 
+
+
 function saveKafkaCatConfig(secretPath: string, configFile: string) {
-    const kafkaBrokers = fs.readFileSync(`${secretPath}/KAFKA_BROKERS`, 'utf-8').trim()
-    fs.removeSync(configFile)
-    const writeStream = fs.createWriteStream(configFile, { flags: 'a' })
-    writeStream.write(`ssl.ca.location=${secretPath}/KAFKA_CA\n`)
-    writeStream.write(`ssl.key.location=${secretPath}/KAFKA_PRIVATE_KEY\n`)
-    writeStream.write(`ssl.certificate.location=${secretPath}/KAFKA_CERTIFICATE\n`)
-    writeStream.write(`bootstrap.servers=${kafkaBrokers}\n`)
-    writeStream.write('security.protocol=ssl\n')
-    writeStream.write('enable.ssl.certificate.verification=false\n')
-    writeStream.write('api.version.request=false\n')
-    writeStream.end()
+    const kafkaBrokers = fs.readFileSync(`${secretPath}/KAFKA_BROKERS`, 'utf-8').trim();
+    fs.rmSync(configFile)
+    const writeStream = fs.createWriteStream(configFile, { flags: 'a' });
+    writeStream.write(`ssl.ca.location=${secretPath}/KAFKA_CA\n`);
+    writeStream.write(`ssl.key.location=${secretPath}/KAFKA_PRIVATE_KEY\n`);
+    writeStream.write(`ssl.certificate.location=${secretPath}/KAFKA_CERTIFICATE\n`);
+    writeStream.write(`bootstrap.servers=${kafkaBrokers}\n`);
+    writeStream.write("security.protocol=ssl\n");
+    writeStream.write("enable.ssl.certificate.verification=false\n");
+    writeStream.end();
+}
+
+function saveJavaConfig(secretPath: string, configFile: string) {
+    const kafkaBrokers = fs.readFileSync(`${secretPath}/KAFKA_BROKERS`, 'utf-8').trim();
+    const kredstorePassword = fs.readFileSync(`${secretPath}/KAFKA_CREDSTORE_PASSWORD`, 'utf-8').trim()
+    fs.rmSync(configFile)
+    const writeStream = fs.createWriteStream(configFile, { flags: 'a' });
+    writeStream.write(`bootstrap.servers=${kafkaBrokers}\n`);
+    writeStream.write("security.protocol=ssl\n");
+    writeStream.write("ssl.keystore.type=PKCS12\n");
+    writeStream.write("ssl.endpoint.identification.algorithm=\n");
+    writeStream.write(`ssl.truststore.location=${secretPath}/client.truststore.jks\n`);
+    writeStream.write(`ssl.keystore.location=${secretPath}/client.keystore.p12\n`);
+    writeStream.write(`ssl.truststore.password=${kredstorePassword}\n`);
+    writeStream.write(`ssl.keystore.password=${kredstorePassword}\n`);
+
+    writeStream.end();
 }
 export async function kafkaConfig(appname: string | undefined | null): Promise<void> {
     const context = Bun.spawnSync('kubectl config current-context'.split(' ')).stdout.toString().trim()
@@ -92,9 +110,12 @@ export async function kafkaConfig(appname: string | undefined | null): Promise<v
         .map((volume: any) => volume.secret.secretName)
     const aivenSecret = secretVolumes[0]
 
-    const basePath = `${CACHE_DIR}/${context}/${appName}`
-    const secretPath = `${basePath}/.secrets`
-    getAndSaveSecret(aivenSecret, secretPath)
-    saveKafkaCatConfig(`${secretPath}`, `${basePath}/kcat.config`)
-    log(`Saved KafkaCat config to ${basePath}/kcat.config`)
+
+    const basePath = `${CACHE_DIR}/${context}/${appName}`;
+    const secretPath = `${basePath}/.secrets`;
+    getAndSaveSecret(aivenSecret, secretPath);
+    saveKafkaCatConfig(`${secretPath}`, `${basePath}/kcat.config`);
+    saveJavaConfig(`${secretPath}`, `${basePath}/kafka.config`);
+    log(`Saved KafkaCat config to ${basePath}/kcat.config`);
+    log(`Saved kafka config to ${basePath}/kafka.config`);
 }
