@@ -1,7 +1,6 @@
 // TODO don't disable eslint? :D
 /* eslint-disable */
-
-import * as fs from 'fs-extra'
+import fs from 'node:fs'
 import inquirer from 'inquirer'
 import autocomplete from 'inquirer-autocomplete-prompt'
 
