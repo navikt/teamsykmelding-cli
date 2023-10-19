@@ -1,11 +1,12 @@
 // TODO don't disable eslint? :D
 /* eslint-disable */
-import fs from 'node:fs'
+import fs from 'fs-extra'
 import inquirer from 'inquirer'
 import autocomplete from 'inquirer-autocomplete-prompt'
 
 import { CACHE_DIR } from '../common/cache.ts'
 import { log } from '../common/log.ts'
+
 
 inquirer.registerPrompt('autocomplete', autocomplete)
 
@@ -13,7 +14,7 @@ function saveSecretToPath(secretData: any, path: string) : void {
     Object.keys(secretData).forEach((key) => {
         // Decode from base64 and save to path
         const decodedValue = Buffer.from(secretData[key], 'base64');
-        fs.writeFileSync(`${path}/${key}`, decodedValue);
+        fs.outputFileSync(`${path}/${key}`, decodedValue);
     });
 }
 function getAllAppNames(pods: any[]): Map<string, any[]> {
@@ -65,7 +66,7 @@ async function promptForAppName(appPodMap: Map<string, any>, appname: string | u
 
 function saveKafkaCatConfig(secretPath: string, configFile: string) {
     const kafkaBrokers = fs.readFileSync(`${secretPath}/KAFKA_BROKERS`, 'utf-8').trim();
-    fs.rmSync(configFile)
+    fs.removeSync(configFile)
     const writeStream = fs.createWriteStream(configFile, { flags: 'a' });
     writeStream.write(`ssl.ca.location=${secretPath}/KAFKA_CA\n`);
     writeStream.write(`ssl.key.location=${secretPath}/KAFKA_PRIVATE_KEY\n`);
@@ -79,7 +80,7 @@ function saveKafkaCatConfig(secretPath: string, configFile: string) {
 function saveJavaConfig(secretPath: string, configFile: string) {
     const kafkaBrokers = fs.readFileSync(`${secretPath}/KAFKA_BROKERS`, 'utf-8').trim();
     const kredstorePassword = fs.readFileSync(`${secretPath}/KAFKA_CREDSTORE_PASSWORD`, 'utf-8').trim()
-    fs.rmSync(configFile)
+    fs.removeSync(configFile)
     const writeStream = fs.createWriteStream(configFile, { flags: 'a' });
     writeStream.write(`bootstrap.servers=${kafkaBrokers}\n`);
     writeStream.write("security.protocol=ssl\n");
