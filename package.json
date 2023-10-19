@@ -5,7 +5,7 @@
     "tsc": "bun x tsc",
     "lint": "bun x eslint src/**/*.ts",
     "lint-staged": "lint-staged",
-    "build": "rimraf tsm-cli/bin/tsm && bun run build-cli && bun run sanity-check",
+    "build": "bun x rimraf tsm-cli/bin/tsm && bun run build-cli && bun run sanity-check",
     "build-cli": "bun run src/build.ts",
     "sanity-check": "./tsm-cli/bin/tsm --help",
     "prepare": "husky install"
