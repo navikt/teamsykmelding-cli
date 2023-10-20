@@ -3,13 +3,11 @@ import fs from 'node:fs'
 import * as child_process from 'child_process'
 
 import chalk from 'chalk'
-import autocomplete from 'inquirer-autocomplete-prompt'
-import inquirer from 'inquirer'
 
 import { getConfig } from '../common/config.ts'
 import { log, logError } from '../common/log.ts'
+import inquirer from '../common/inquirer.ts'
 
-inquirer.registerPrompt('autocomplete', autocomplete)
 async function openProject(projectDir: string): Promise<void> {
     const absolutePath: string = path.resolve(projectDir)
     const config = await getConfig()
