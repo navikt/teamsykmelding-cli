@@ -19,6 +19,7 @@ import { getConfig, updateConfig } from './common/config.ts'
 import { pullAllRepositories } from './actions/git.ts'
 import { open } from './actions/open.ts'
 import { cleanup, kafkaConfig } from './actions/kafka.ts'
+import { syncFileAcrossRepos } from './actions/sync-file.ts'
 
 if (
     Bun.argv.find((it) => it.includes('update')) == null &&
@@ -109,6 +110,17 @@ await yargs(hideBin(process.argv))
                 description: 'override team to look up, ex: tsm team --name=flex',
             }),
         async (yargs) => displayMembers(yargs.name ?? null),
+    )
+    .command(
+        'sync-file',
+        'sync a file across specified repos',
+        (yargs) =>
+            yargs.positional('query', {
+                type: 'string',
+                demandOption: true,
+                describe: 'execute this bash command in all repos and return all repos that give the error code 0',
+            }),
+        async (args) => syncFileAcrossRepos(args.query),
     )
     .command(
         'primary-branch',

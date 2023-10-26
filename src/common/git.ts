@@ -49,7 +49,7 @@ export class Gitter {
         const repoClient = this.createRepoGitClient(repo)
 
         if (this.type === 'cache') {
-            repoClient.reset(ResetMode.HARD).clean([CleanOptions.FORCE, CleanOptions.RECURSIVE]).pull({
+            repoClient.clean([CleanOptions.FORCE, CleanOptions.RECURSIVE]).reset(ResetMode.HARD, ['origin/HEAD']).pull({
                 '--rebase': null,
             })
         } else {
@@ -90,7 +90,7 @@ export class Gitter {
         return 'cloned'
     }
 
-    private createRepoGitClient(repo: string): SimpleGit {
+    public createRepoGitClient(repo: string): SimpleGit {
         if (this.type === 'cache') {
             return simpleGit({
                 baseDir: `${GIT_CACHE_DIR}/${repo}`,
