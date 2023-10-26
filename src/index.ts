@@ -20,6 +20,7 @@ import { pullAllRepositories } from './actions/git.ts'
 import { open } from './actions/open.ts'
 import { cleanup, kafkaConfig } from './actions/kafka.ts'
 import { syncFileAcrossRepos } from './actions/sync-file.ts'
+import { openResource } from './actions/web.ts'
 
 if (
     Bun.argv.find((it) => it.includes('update')) == null &&
@@ -189,6 +190,19 @@ await yargs(hideBin(process.argv))
             }),
         async (args) => {
             await open(args.project ?? null)
+        },
+    )
+    .command(
+        'web [what]',
+        'open web page',
+        (yargs) =>
+            yargs.positional('what', {
+                type: 'string',
+                description: 'what to open, e.g. "docs"',
+                default: null,
+            }),
+        async (args) => {
+            await openResource(args.what ?? null)
         },
     )
     .command(

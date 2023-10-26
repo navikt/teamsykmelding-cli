@@ -19,6 +19,7 @@
         "inquirer": "^9.2.11",
         "inquirer-autocomplete-prompt": "^3.0.1",
         "octokit": "^3.1.0",
+        "open": "^9.1.0",
         "remeda": "^1.26.0",
         "simple-git": "^3.19.1",
         "yargs": "^17.7.2"
