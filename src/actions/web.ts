@@ -62,6 +62,12 @@ export async function openResource(what: string | null): Promise<void> {
         return
     }
 
+    if (what != null && isApp(what)) {
+        const selectedEnv = await getAppEnv(what)
+        await openApp(what, selectedEnv)
+        return
+    }
+
     const everything = [...R.keys(availablePages), ...R.keys(availableApps).map((it) => `app: ${it}`)]
     const { selectedRootItem } = await inquirer.prompt([
         {
@@ -81,21 +87,29 @@ export async function openResource(what: string | null): Promise<void> {
         return
     }
 
-    const envs = availableApps[cleanItem]
+    const selectedEnv = await getAppEnv(cleanItem)
+    await openApp(cleanItem, selectedEnv)
+}
+
+async function openApp(app: AppKeys, env: keyof Envs): Promise<void> {
+    const url = availableApps[app][env]
+
+    log(`Opening ${chalk.blue(url)}...`)
+    await open(url)
+}
+
+async function getAppEnv(app: AppKeys): Promise<keyof Envs> {
+    const envs = availableApps[app]
     const { selectedEnv } = await inquirer.prompt([
         {
             type: 'autocomplete',
             name: 'selectedEnv',
-            message: `What environment for ${cleanItem} do you want to open?`,
+            message: `What environment for ${app} do you want to open?`,
             source: async (_: unknown, input: string) => R.keys(envs).filter((page) => page.includes(input ?? '')),
         },
     ])
 
-    const url = availableApps[cleanItem][selectedEnv as keyof Envs]
-
-    log(`Opening ${chalk.blue(url)}...`)
-
-    await open(url)
+    return selectedEnv
 }
 
 function isPage(what: string): what is PageKeys {
