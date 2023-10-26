@@ -9,7 +9,7 @@ import packageJson from '../tsm-cli/package.json'
 import { checkTooling } from './actions/check.ts'
 import { lastCommits } from './actions/last-commits.ts'
 import { hasNewVersion, hasNewVersionCached, updateToNewestVersion, writeNewVersionCache } from './self-updater.ts'
-import { log } from './common/log.ts'
+import { log, logError } from './common/log.ts'
 import { openPrs } from './actions/prs.ts'
 import { getRepoMainBranch } from './actions/repo-metadata.ts'
 import { getRepos } from './actions/repos.ts'
@@ -196,13 +196,24 @@ await yargs(hideBin(process.argv))
         'web [what]',
         'open web page',
         (yargs) =>
-            yargs.positional('what', {
-                type: 'string',
-                description: 'what to open, e.g. "docs"',
-                default: null,
-            }),
+            yargs
+                .positional('what', {
+                    type: 'string',
+                    description: 'what to open, e.g. "docs"',
+                    default: null,
+                })
+                .positional('env', {
+                    type: 'string',
+                    description: 'if app is provided, what env, e.g. "dev"',
+                    default: null,
+                }),
         async (args) => {
-            await openResource(args.what ?? null)
+            if (args.env != null && !['dev', 'demo', 'prod'].includes(args.env)) {
+                logError(`\n${args.env} is not a valid env, use one of: dev, demo, prod\n`)
+                process.exit(1)
+            }
+
+            await openResource(args.what ?? null, args.env ?? null)
         },
     )
     .command(

@@ -56,14 +56,14 @@ const availableApps = {
 type AppKeys = (typeof appKeys)[number]
 const appKeys = R.keys.strict(availableApps)
 
-export async function openResource(what: string | null): Promise<void> {
+export async function openResource(what: string | null, env: string | null): Promise<void> {
     if (what != null && isPage(what)) {
         await open(availablePages[what])
         return
     }
 
     if (what != null && isApp(what)) {
-        const selectedEnv = await getAppEnv(what)
+        const selectedEnv = (env as keyof Envs) ?? (await getAppEnv(what))
         await openApp(what, selectedEnv)
         return
     }
