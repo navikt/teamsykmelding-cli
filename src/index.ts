@@ -21,6 +21,7 @@ import { open } from './actions/open.ts'
 import { cleanup, kafkaConfig } from './actions/kafka.ts'
 import { syncFileAcrossRepos } from './actions/sync-file.ts'
 import { openResource } from './actions/web.ts'
+import { auth } from './actions/auth.ts'
 
 if (
     Bun.argv.find((it) => it.includes('update')) == null &&
@@ -46,6 +47,7 @@ if (
 await yargs(hideBin(process.argv))
     .scriptName('tsm')
     .command('check', 'check that all tooling looks OK', async () => checkTooling())
+    .command('auth', 'login to gcloud', async () => auth())
     .command(
         'commits',
         'get the last commits for every repo in the team',
