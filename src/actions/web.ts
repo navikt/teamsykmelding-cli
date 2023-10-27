@@ -11,14 +11,24 @@ type Envs = {
     demo?: string
 }
 
-const availablePages = {
+const isKnowit = ['andreassagenaspaas', 'karl'].includes(Bun.env.USER ?? '')
+const knowitPages = {
+    ubw: 'https://ubw.knowit.se',
+}
+
+const staticPages = {
     mock: 'https://teamsykmelding-mock.intern.dev.nav.no/',
     docs: 'https://teamsykmelding.intern.nav.no/',
     unleash: 'https://teamsykmelding-unleash-web.nav.cloud.nais.io/',
 }
 
+const availablePages = {
+    ...staticPages,
+    ...{ ...(isKnowit ? knowitPages : {}) },
+}
+
 type PageKeys = (typeof pageKeys)[number]
-const pageKeys = R.keys.strict(availablePages)
+const pageKeys = R.keys.strict(staticPages)
 
 const availableApps = {
     sykmeldinger: {
