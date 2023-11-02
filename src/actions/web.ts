@@ -15,6 +15,9 @@ const isKnowit = ['andreassagenaspaas', 'karl'].includes(Bun.env.USER ?? '')
 const knowitPages = {
     ubw: 'https://ubw.knowit.se',
 }
+const hiddenPages = {
+    helg: 'https://helg.karl.run/nyan',
+}
 
 const staticPages = {
     mock: 'https://teamsykmelding-mock.intern.dev.nav.no/',
@@ -25,6 +28,7 @@ const staticPages = {
 const availablePages = {
     ...staticPages,
     ...{ ...(isKnowit ? knowitPages : {}) },
+    ...hiddenPages,
 }
 
 type PageKeys = (typeof pageKeys)[number]
@@ -78,7 +82,10 @@ export async function openResource(what: string | null, env: string | null): Pro
         return
     }
 
-    const everything = [...R.keys(availablePages), ...R.keys(availableApps).map((it) => `app: ${it}`)]
+    const everything = [
+        ...R.difference(R.keys(availablePages), R.keys(hiddenPages)),
+        ...R.keys(availableApps).map((it) => `app: ${it}`),
+    ]
     const { selectedRootItem } = await inquirer.prompt([
         {
             type: 'autocomplete',
