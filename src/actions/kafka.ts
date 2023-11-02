@@ -5,6 +5,7 @@ import fs from 'fs-extra'
 import { CACHE_DIR } from '../common/cache.ts'
 import { log } from '../common/log.ts'
 import inquirer from "../common/inquirer.ts";
+import {getAllAppNames, promptForAppName} from "../common/kubectl.ts";
 
 function saveSecretToPath(secretData: any, path: string): void {
     Object.keys(secretData).forEach((key) => {
@@ -13,16 +14,7 @@ function saveSecretToPath(secretData: any, path: string): void {
         fs.outputFileSync(`${path}/${key}`, decodedValue)
     })
 }
-function getAllAppNames(pods: any[]): Map<string, any[]> {
-    const appPodMap = new Map<string, any>()
-    pods.forEach((pod) => {
-        const appName = pod.metadata.labels.app
-        if (appName && !appPodMap.has(appName)) {
-            appPodMap.set(appName, pod)
-        }
-    })
-    return appPodMap
-}
+
 function getAndSaveSecret(secretName: string, path: string) {
     const output = Bun.spawnSync(`kubectl get secret ${secretName} -o json`.split(' '))
     if (output.exitCode !== 0) {
@@ -34,29 +26,7 @@ function getAndSaveSecret(secretName: string, path: string) {
     saveSecretToPath(secretData, path)
 }
 
-async function promptForAppName(appPodMap: Map<string, any>, appname: string | undefined | null) {
-    // Convert Map keys into an array of app names
-    const appNames: string[] = Array.from(appPodMap.keys())
-    const appInput = appname || ''
-    const { appName } = await inquirer.prompt([
-        {
-            type: 'autocomplete',
-            name: 'appName',
-            message: 'Start typing to search for an app',
-            source: function (_: unknown, input: string) {
-                return new Promise(function (resolve) {
-                    const results = appNames.filter((app) => app.includes(input ?? appInput))
-                    resolve(results)
-                })
-            },
-        },
-    ])
 
-    return {
-        appName,
-        pod: appPodMap.get(appName),
-    }
-}
 
 function saveKafkaCatConfig(secretPath: string, configFile: string) {
     const kafkaBrokers = fs.readFileSync(`${secretPath}/KAFKA_BROKERS`, 'utf-8').trim()
@@ -103,7 +73,6 @@ export async function kafkaConfig(appname: string | undefined | null): Promise<v
         .filter((volume: any) => volume.name == 'aiven-credentials')
         .map((volume: any) => volume.secret.secretName)
     const aivenSecret = secretVolumes[0]
-
     const basePath = `${CACHE_DIR}/${context}/${appName}`
     const secretPath = `${basePath}/.secrets`
     getAndSaveSecret(aivenSecret, secretPath)

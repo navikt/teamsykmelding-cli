@@ -22,6 +22,7 @@ import { cleanup, kafkaConfig } from './actions/kafka.ts'
 import { syncFileAcrossRepos } from './actions/sync-file.ts'
 import { openResource } from './actions/web.ts'
 import { auth } from './actions/auth.ts'
+import { azure } from './actions/azure.ts'
 
 if (
     Bun.argv.find((it) => it.includes('update')) == null &&
@@ -247,6 +248,38 @@ await yargs(hideBin(process.argv))
         () => {
             log('Use one of the following commands:')
             log('\ttsm kafka config "app-name"')
+        },
+    )
+    .command(
+        'azure',
+        'azure cli for azure stuff',
+        (yargs) =>
+            yargs.command(
+                'token [scope] [app]',
+                'get token for azure app for scope',
+                (yargs) =>
+                    yargs
+                        .positional('scope', {
+                            type: 'string',
+                            describe: 'scope',
+                        })
+                        .positional('app', {
+                            type: 'string',
+                            default: null,
+                            describe: 'app name',
+                        }),
+                async (args) => {
+                    if (args.scope != null) {
+                        await azure(args.app, args.scope)
+                    } else {
+                        logError(`\n${args.env} is not a valid env, use one of: dev, demo, prod\n`)
+                        process.exit(1)
+                    }
+                },
+            ),
+        () => {
+            log('Use one of the following commands: ')
+            log('\ttsm azure token "scope" "app-name"')
         },
     )
     .demandCommand()
