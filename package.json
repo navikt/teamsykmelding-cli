@@ -25,7 +25,7 @@
         "yargs": "^17.7.2"
     },
     "devDependencies": {
-        "@navikt/eslint-config-teamsykmelding": "^4.3.0",
+        "@navikt/eslint-config-teamsykmelding": "^5.0.0",
         "@types/fs-extra": "^11.0.3",
         "@types/inquirer": "^9.0.4",
         "@types/inquirer-autocomplete-prompt": "^3.0.1",
