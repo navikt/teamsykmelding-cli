@@ -23,6 +23,7 @@ const staticPages = {
     mock: 'https://teamsykmelding-mock.intern.dev.nav.no/',
     docs: 'https://teamsykmelding.intern.nav.no/',
     unleash: 'https://teamsykmelding-unleash-web.nav.cloud.nais.io/',
+    ida: 'https://ida.intern.nav.no/',
 }
 
 const availablePages = {
