@@ -23,6 +23,7 @@ import { syncFileAcrossRepos } from './actions/sync-file.ts'
 import { openResource } from './actions/web.ts'
 import { auth } from './actions/auth.ts'
 import { azure } from './actions/azure.ts'
+import { coAuthors } from './actions/co-authors.ts'
 
 if (
     Bun.argv.find((it) => it.includes('update')) == null &&
@@ -136,6 +137,24 @@ await yargs(hideBin(process.argv))
                 describe: 'include main branches in output',
             }),
         async (args) => getRepoMainBranch(args.showMain),
+    )
+    .command(
+        'mob',
+        'make a mob commit',
+        (yargs) =>
+            yargs
+                .positional('message', {
+                    type: 'string',
+                    alias: 'm',
+                    describe: 'commit message with co-authors',
+                    conflicts: 'amend',
+                })
+                .option('amend', {
+                    type: 'boolean',
+                    describe: 'amend the commit with co-authors',
+                    conflicts: 'message',
+                }),
+        async (args) => coAuthors(args.message, args.amend),
     )
     .command(
         'config',
