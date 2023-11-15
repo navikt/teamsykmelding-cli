@@ -16,19 +16,20 @@ await migrateFromCacheToConfigDir(CACHE_DIR, CONFIG_DIR)
 type Config = {
     gitDir: string | undefined
     ide: string | undefined
+    coAuthors: [string, string, string][] | undefined
 }
 
 const defaultConfig: Config = {
     gitDir: undefined,
     ide: 'idea',
+    coAuthors: undefined,
 }
 
-const configFile = Bun.file(path.join(CONFIG_DIR, 'config.json'))
-
 export async function updateConfig(config: Partial<Config>): Promise<Config> {
-    const currentConfig = getConfig()
+    const currentConfig: Config = await getConfig()
     const newConfig = { ...currentConfig, ...config }
 
+    const configFile = Bun.file(path.join(CONFIG_DIR, 'config.json'))
     await Bun.write(configFile, JSON.stringify(newConfig))
 
     return newConfig
@@ -37,16 +38,19 @@ export async function updateConfig(config: Partial<Config>): Promise<Config> {
 export async function getConfig(): Promise<Config> {
     let config: Config
 
+    const configFile = Bun.file(path.join(CONFIG_DIR, 'config.json'))
     if (!(await configFile.exists())) {
         config = defaultConfig
         await Bun.write(configFile, JSON.stringify(defaultConfig))
     } else {
         config = await configFile.json<Config>()
     }
+
     if (!config.ide) {
         config.ide = 'idea'
         await Bun.write(configFile, JSON.stringify(config))
     }
+
     return config
 }
 
