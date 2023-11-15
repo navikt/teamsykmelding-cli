@@ -10,7 +10,6 @@ export async function coAuthors(message: string | undefined, amend: boolean | un
     }
 
     if (message != null) {
-        // handle new commit
         await newCommitWithCoAuthors(message)
         return
     }
