@@ -7,7 +7,7 @@ import { getYargsParser } from '../src/yargs-parser'
 
 const availableCommands = await Promise.all(
     (await getYargsParser(['foo', 'bar']).getCompletion([]))
-        .map((it) => it.split(':'))
+        .map((it) => it.split(':', 2))
         .map(async ([name, description]) => [name, description]),
 )
 
