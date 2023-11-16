@@ -9,7 +9,7 @@ export type Author = [name: string, email: string, user: string]
 const authorOptions: Author[] = [
     ['Karl O', 'k@rl.run', 'karl'],
     ['Andreas', 'danduras@gmail.com', 'andreassagenaspaas'],
-    ['Natalie Uranes', 'natalie.uranes@gmail.com', 'nuranes'],
+    ['Natalie Uranes', 'natalie.uranes@gmail.com', 'natalieu'],
     ['Joakim Taule Kartveit', 'joakimkartveit@gmail.com', 'joakim'],
     ['Bendik Berntsen', 'Bendik.Berntsen@nav.no', 'bendikberntsen'],
     ['Fridtjof Alestrøm', 'fridtjof.gustaf.alestrom@nav.no', 'fridtjofalestrom'],
