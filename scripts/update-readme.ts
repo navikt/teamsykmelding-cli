@@ -1,5 +1,8 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment,no-console */
+
 import path from 'node:path'
 
+// @ts-ignore bun script doesn't like importing src
 import { getYargsParser } from '../src/yargs-parser'
 
 const availableCommands = await Promise.all(
@@ -22,5 +25,3 @@ ${availableCommands.map(([name, description]) => `* \`${name}\` - ${description}
 await Bun.write(readmeFile, originalFileContent.replace(readmeMarkersRegex, newContent))
 
 console.log('Updated README.md with cron schedule')
-
-console.log(path.join(process.cwd(), 'README.md'))
