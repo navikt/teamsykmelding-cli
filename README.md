@@ -35,8 +35,31 @@ export NPM_AUTH_TOKEN=<din token>
 npm i -g @navikt/teamsykmelding-cli
 ```
 
-Nå er du klar til å bruke `tsm`! 
+Nå er du klar til å bruke `tsm`!
 
+### Automatisk generert dokumentasjon
+
+<!-- COMPUTER SAYS DON'T TOUCH THIS START -->
+
+* `check` - check that all tooling looks OK
+* `auth` - login to gcloud
+* `commits` - get the last commits for every repo in the team
+* `prs` - get all open pull requests
+* `repos` - get all repos
+* `git` - keep our repos in sync, ex
+* `team` - get all team members
+* `sync-file` - sync a file across specified repos
+* `primary-branch` - get misc repo metadata
+* `mob` - make a mob commit
+* `config` - set config for tsm
+* `upgrade` - update the cli
+* `update` - see if there is a new version for this cli
+* `open` - open command that opens a project in IntelliJ IDEA
+* `web` - open web page
+* `kafka` - kafka cli for kafka stuff
+* `azure` - azure cli for azure stuff
+
+<!-- COMPUTER SAYS DON'T TOUCH THIS END -->
 
 ### Eksempler på bruk:
 
