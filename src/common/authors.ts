@@ -13,7 +13,7 @@ const authorOptions: Author[] = [
     ['Joakim Taule Kartveit', 'joakimkartveit@gmail.com', 'joakim'],
     ['Bendik Berntsen', 'Bendik.Berntsen@nav.no', 'bendikberntsen'],
     ['Fridtjof Alestrøm', 'fridtjof.gustaf.alestrom@nav.no', 'fridtjofalestrom'],
-    ['Helene Arnesen', 'helene.arnesen@nav.no', 'helenarnesen'],
+    ['Helene Arnesen', 'helene.arnesen@nav.no', 'helenearnesen'],
     ['Jørn-Are Flaten', 'ja.flaten91@gmail.com', 'jaflaten'],
 ]
 
