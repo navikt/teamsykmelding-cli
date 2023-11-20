@@ -59,8 +59,13 @@ function saveJavaConfig(secretPath: string, configFile: string) {
 }
 export async function kafkaConfig(appname: string | undefined | null): Promise<void> {
     const context = Bun.spawnSync('kubectl config current-context'.split(' ')).stdout.toString().trim()
-    const podList = Bun.spawnSync('kubectl get pods -l kafka=enabled -o json'.split(' '))
-    const pods = JSON.parse(podList.stdout.toString()).items
+    const podListProc = Bun.spawn('kubectl get pods -l kafka=enabled -o json'.split(' '), {
+        stdout: 'pipe'
+    })
+    const stdoutArray: Uint8Array[] = await Bun.readableStreamToArray(podListProc.stdout);
+    const podList = stdoutArray.map(it => new TextDecoder().decode(it)).join("")
+
+    const pods = JSON.parse(podList).items
     const appsAndPods = getAllAppNames(pods)
     const { appName, pod } = await promptForAppName(appsAndPods, appname)
 
