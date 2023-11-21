@@ -55,7 +55,7 @@ export function reportChangesSinceLast(existingVersion: string): void {
         hashMessageTuple,
         R.splitWhen(([, message]) => message.includes(existingVersion)),
         R.first(),
-        R.filter(([, message]) => !message.includes(existingVersion)),
+        R.filter(([, message]) => !message.includes('bump version')),
     )
 
     if (changes && changes.length > 0) {
