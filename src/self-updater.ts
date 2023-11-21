@@ -1,5 +1,7 @@
 import * as path from 'node:path'
 import * as fs from 'node:fs'
+
+import * as R from 'remeda'
 import { parse } from 'semver'
 import chalk from 'chalk'
 
@@ -19,22 +21,48 @@ export function hasNewVersion(): string | null {
     return result !== packageJson.version ? result : null
 }
 
-export function updateToNewestVersion(): void {
+export async function updateToNewestVersion(): Promise<void> {
     const newVersion = hasNewVersion()
     if (newVersion != null) {
         log(`Updating to ${chalk.green(newVersion)}...`)
         const updateSub = Bun.spawnSync('npm i -g @navikt/teamsykmelding-cli'.split(' '))
         if (updateSub.exitCode === 0) {
             log(chalk.green(`Updated to version ${newVersion}!`))
+            reportChangesSinceLast(packageJson.version)
         } else {
             log(chalk.bgWhite.red(`Could not update to version ${newVersion}.`))
             log(chalk.red(updateSub.stderr.toString()))
 
             process.exit(1)
         }
-        fs.rmSync(path.join(CACHE_DIR, 'metadata.json'))
+        const metadataPath = path.join(CACHE_DIR, 'metadata.json')
+        if (await Bun.file(metadataPath).exists()) {
+            fs.rmSync(metadataPath)
+        }
     } else {
         log(chalk.green(`You are on the latest version!`))
+    }
+}
+
+export function reportChangesSinceLast(existingVersion: string): void {
+    const hashMessageTuple: [string, string][] = Bun.spawnSync('git log -10 --format=%an;%s'.split(' '))
+        .stdout.toString()
+        .split('\n')
+        .filter((it) => it)
+        .map((it) => it.split(';') as [author: string, message: string])
+
+    const changes = R.pipe(
+        hashMessageTuple,
+        R.splitWhen(([, message]) => message.includes(existingVersion)),
+        R.first(),
+        R.filter(([, message]) => !message.includes(existingVersion)),
+    )
+
+    if (changes && changes.length > 0) {
+        log(chalk.green(`\nChanges since last version (${packageJson.version}):`))
+        changes.forEach(([author, message]) =>
+            log(chalk.yellowBright(`${message}\n\t${chalk.blueBright(`by ${author}`)}`)),
+        )
     }
 }
 
@@ -46,12 +74,12 @@ export async function hasNewVersionCached(): Promise<string | null> {
     return file?.newVersion !== packageJson.version ? file.newVersion : null
 }
 
-export async function writeNewVersionCache(version: string) {
+export async function writeNewVersionCache(version: string): Promise<void> {
     fs.mkdirSync(CACHE_DIR, { recursive: true })
     await Bun.write(path.join(CACHE_DIR, 'metadata.json'), JSON.stringify({ newVersion: version }))
 }
 
-export async function unsetNewVersionCache() {
+export async function unsetNewVersionCache(): Promise<void> {
     fs.rmSync(path.join(CACHE_DIR, 'metadata.json'))
 }
 

@@ -19,7 +19,7 @@ import { displayMembers } from './actions/team.ts'
 import { syncFileAcrossRepos } from './actions/sync-file.ts'
 import { getRepoMainBranch } from './actions/repo-metadata.ts'
 import { coAuthors } from './actions/co-authors.ts'
-import { hasNewVersion, updateToNewestVersion, writeNewVersionCache } from './self-updater.ts'
+import { hasNewVersion, reportChangesSinceLast, updateToNewestVersion, writeNewVersionCache } from './self-updater.ts'
 import { open } from './actions/open.ts'
 import { openResource } from './actions/web.ts'
 import { cleanup, kafkaConfig } from './actions/kafka.ts'
@@ -176,6 +176,8 @@ export const getYargsParser = (argv: string[]): Argv =>
                     await writeNewVersionCache(newVersion)
                     log(`New version available! ${chalk.yellow(packageJson.version)} -> ${chalk.green(newVersion)}`)
                     log(`Run ${chalk.cyan('tsm upgrade')} to upgrade`)
+
+                    reportChangesSinceLast(packageJson.version)
                 } else {
                     log(chalk.green(`You are on the latest version!`))
                 }
