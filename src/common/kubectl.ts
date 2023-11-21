@@ -1,6 +1,6 @@
 // TODO don't disable eslint? :D
 /* eslint-disable */
-import inquirer from "./inquirer.ts";
+import inquirer from './inquirer.ts'
 
 export function getAllAppNames(pods: any[]): Map<string, any[]> {
     const appPodMap = new Map<string, any>()

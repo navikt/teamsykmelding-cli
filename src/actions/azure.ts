@@ -1,20 +1,20 @@
 // TODO don't disable eslint? :D
 /* eslint-disable */
-import {getAllAppNames, promptForAppName} from "../common/kubectl.ts";
+import { getAllAppNames, promptForAppName } from '../common/kubectl.ts'
 interface BearerTokenResponse {
-    access_token: string;
+    access_token: string
 }
-export async function azure(appname: string | undefined | null, scope: string) : Promise<void> {
+export async function azure(appname: string | undefined | null, scope: string): Promise<void> {
     const podList = Bun.spawnSync('kubectl get pods -l azure=enabled -o json'.split(' '))
     const pods = JSON.parse(podList.stdout.toString()).items
     const appsAndPods = getAllAppNames(pods)
-    const {pod} = await promptForAppName(appsAndPods, appname)
+    const { pod } = await promptForAppName(appsAndPods, appname)
 
     const azureCredentials = pod.spec.volumes
-        .filter((volume: any) => volume.name.startsWith("azure"))
+        .filter((volume: any) => volume.name.startsWith('azure'))
         .map((volume: any) => volume.secret.secretName)
 
-    if(azureCredentials.length === 0) {
+    if (azureCredentials.length === 0) {
         console.error(`No azure credentials found for app ${appname}`)
         return
     }
@@ -32,25 +32,24 @@ export async function azure(appname: string | undefined | null, scope: string) :
         grant_type: 'client_credentials',
         client_id: clientId,
         client_secret: clientSecret,
-        scope: scope
-    });
+        scope: scope,
+    })
 
     const result = await fetch(tokenEndpoint.toString(), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: data
+        body: data,
     })
 
-    if(!result.ok) {
+    if (!result.ok) {
         console.error(`Failed to get token: ${result.statusText}`)
         console.error(await result.text())
         return
     }
 
-    const token = (await result.json() as BearerTokenResponse).access_token
+    const token = ((await result.json()) as BearerTokenResponse).access_token
 
     console.log(token)
 }
-

@@ -4,8 +4,8 @@ import fs from 'fs-extra'
 
 import { CACHE_DIR } from '../common/cache.ts'
 import { log } from '../common/log.ts'
-import inquirer from "../common/inquirer.ts";
-import {getAllAppNames, promptForAppName} from "../common/kubectl.ts";
+import inquirer from '../common/inquirer.ts'
+import { getAllAppNames, promptForAppName } from '../common/kubectl.ts'
 
 function saveSecretToPath(secretData: any, path: string): void {
     Object.keys(secretData).forEach((key) => {
@@ -25,8 +25,6 @@ function getAndSaveSecret(secretName: string, path: string) {
     const secretData = JSON.parse(output.stdout.toString()).data
     saveSecretToPath(secretData, path)
 }
-
-
 
 function saveKafkaCatConfig(secretPath: string, configFile: string) {
     const kafkaBrokers = fs.readFileSync(`${secretPath}/KAFKA_BROKERS`, 'utf-8').trim()
@@ -60,10 +58,10 @@ function saveJavaConfig(secretPath: string, configFile: string) {
 export async function kafkaConfig(appname: string | undefined | null): Promise<void> {
     const context = Bun.spawnSync('kubectl config current-context'.split(' ')).stdout.toString().trim()
     const podListProc = Bun.spawn('kubectl get pods -l kafka=enabled -o json'.split(' '), {
-        stdout: 'pipe'
+        stdout: 'pipe',
     })
-    const stdoutArray: Uint8Array[] = await Bun.readableStreamToArray(podListProc.stdout);
-    const podList = stdoutArray.map(it => new TextDecoder().decode(it)).join("")
+    const stdoutArray: Uint8Array[] = await Bun.readableStreamToArray(podListProc.stdout)
+    const podList = stdoutArray.map((it) => new TextDecoder().decode(it)).join('')
 
     const pods = JSON.parse(podList).items
     const appsAndPods = getAllAppNames(pods)
