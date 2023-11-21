@@ -13,6 +13,7 @@ const CLI_CHECKS: [cli: (typeof REQUIRED_CLI)[number], check: () => string | nul
 ]
 
 export function checkTooling(): void {
+    log(chalk.blueBright('Checking tools...'))
     const missing = missingClis()
     if (missing.length > 0) {
         log(

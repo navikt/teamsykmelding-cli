@@ -12,16 +12,15 @@
         "postinstall": "bun x prettier package.json --write && echo \"Prettiered package.json\""
     },
     "dependencies": {
-        "@inquirer/prompts": "^3.1.1",
         "chalk": "^5.3.0",
         "date-fns": "^2.30.0",
         "fs-extra": "^11.1.1",
-        "inquirer": "^9.2.11",
+        "inquirer": "^9.2.12",
         "inquirer-autocomplete-prompt": "^3.0.1",
-        "octokit": "^3.1.0",
+        "octokit": "^3.1.2",
         "open": "^9.1.0",
-        "remeda": "^1.26.0",
-        "simple-git": "^3.19.1",
+        "remeda": "^1.29.0",
+        "simple-git": "^3.21.0",
         "yargs": "^17.7.2"
     },
     "devDependencies": {
