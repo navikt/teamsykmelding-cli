@@ -7,9 +7,8 @@ import chalk from 'chalk'
 
 import packageJson from '../tsm-cli/package.json'
 
-import { log } from './common/log.ts'
+import { log, logError } from './common/log.ts'
 import { CACHE_DIR } from './common/cache.ts'
-import { getConfig } from './common/config.ts'
 
 export function hasNewVersion(): string | null {
     const sub = Bun.spawnSync('npm view @navikt/teamsykmelding-cli@latest versions --json'.split(' '))
@@ -46,19 +45,18 @@ export async function updateToNewestVersion(): Promise<void> {
 }
 
 export async function reportChangesSinceLast(existingVersion: string): Promise<void> {
-    const config = await getConfig()
-    if (config.gitDir == null) return
+    type GithubResponse = { sha: string; commit: { author: { name: string }; message: string } }[]
 
-    const hashMessageTuple: [string, string][] = Bun.spawnSync(
-        `git -C ${config.gitDir}/teamsykmelding-cli log -50 --format=%an;%s`.split(' '),
-    )
-        .stdout.toString()
-        .split('\n')
-        .filter((it) => it)
-        .map((it) => it.split(';') as [author: string, message: string])
+    const response = await fetch('https://api.github.com/repos/navikt/teamsykmelding-cli/commits')
+
+    if (!response.ok) {
+        logError(`Unable to fetch latest commits from github: ${response.status} ${response.statusText}`)
+        return
+    }
 
     const changes = R.pipe(
-        hashMessageTuple,
+        (await response.json()) as GithubResponse,
+        R.map(({ commit: { author, message } }) => [author.name, message.split('\n')[0]]),
         R.splitWhen(([, message]) => message.includes(existingVersion)),
         R.first(),
         R.filter(([, message]) => !message.includes('bump version')),
