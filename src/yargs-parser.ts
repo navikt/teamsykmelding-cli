@@ -183,6 +183,9 @@ export const getYargsParser = (argv: string[]): Argv =>
                 }
             },
         )
+        .command('changelog', 'get the latest changes in tsm cli', async () => {
+            await reportChangesSinceLast(null)
+        })
         .command(
             'open [project]',
             'open command that opens a project in IntelliJ IDEA',

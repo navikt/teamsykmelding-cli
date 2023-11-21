@@ -54,6 +54,7 @@ Nå er du klar til å bruke `tsm`!
 * `config` - set config for tsm
 * `upgrade` - update the cli
 * `update` - see if there is a new version for this cli
+* `changelog` - get the latest changes in tsm cli
 * `open` - open command that opens a project in IntelliJ IDEA
 * `web` - open web page
 * `kafka` - kafka cli for kafka stuff

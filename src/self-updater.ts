@@ -44,7 +44,7 @@ export async function updateToNewestVersion(): Promise<void> {
     }
 }
 
-export async function reportChangesSinceLast(existingVersion: string): Promise<void> {
+export async function reportChangesSinceLast(existingVersion: string | null): Promise<void> {
     type GithubResponse = { sha: string; commit: { author: { name: string }; message: string } }[]
 
     const response = await fetch('https://api.github.com/repos/navikt/teamsykmelding-cli/commits')
@@ -57,13 +57,23 @@ export async function reportChangesSinceLast(existingVersion: string): Promise<v
     const changes = R.pipe(
         (await response.json()) as GithubResponse,
         R.map(({ commit: { author, message } }) => [author.name, message.split('\n')[0]]),
-        R.splitWhen(([, message]) => message.includes(existingVersion)),
-        R.first(),
+        (commits) =>
+            existingVersion == null
+                ? commits
+                : R.pipe(
+                      commits,
+                      R.splitWhen(([, message]) => message.includes(existingVersion)),
+                      R.first(),
+                  ),
         R.filter(([, message]) => !message.includes('bump version')),
     )
 
     if (changes && changes.length > 0) {
-        log(chalk.green(`\nChanges since last version (${packageJson.version}):`))
+        if (existingVersion == null) {
+            log(chalk.green(`Latest changes in tsm:\n`))
+        } else {
+            log(chalk.green(`\nChanges since last version (${packageJson.version}):`))
+        }
         changes.forEach(([author, message]) =>
             log(chalk.yellowBright(`${message}\n\t${chalk.blueBright(`by ${author}`)}`)),
         )
