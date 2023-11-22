@@ -299,5 +299,10 @@ export const getYargsParser = (argv: string[]): Argv =>
         .middleware(async (yargs) => {
             const { $0: _, _: command, ...args } = yargs
 
+            if (command[0] === 'update') {
+                // Ignore update command, since it's always being run
+                return
+            }
+
             updateAnalytics(command, args)
         })
