@@ -1,9 +1,13 @@
-import { version } from '../tsm-cli/package.json'
 import chalk from 'chalk'
+
+import { version } from '../tsm-cli/package.json'
 
 const result = await Bun.build({
     entrypoints: ['src/index.ts'],
     target: 'bun',
+    define: {
+        'process.env.COMPILED_BINARY': '"true"',
+    },
 })
 
 if (result.outputs.length > 1) {

@@ -25,6 +25,7 @@ import { openResource } from './actions/web.ts'
 import { cleanup, kafkaConfig } from './actions/kafka.ts'
 import { azure } from './actions/azure.ts'
 import { updateAnalytics } from './analytics'
+import { showUsageAnalytics } from './analytics/analytics-global.ts'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
@@ -191,6 +192,9 @@ export const getYargsParser = (argv: string[]): Argv =>
         )
         .command('changelog', 'get the latest changes in tsm cli', async () => {
             await reportChangesSinceLast(null)
+        })
+        .command('analytics', 'get your own usage stats for tsm cli', async () => {
+            await showUsageAnalytics()
         })
         .command(
             'open [project]',
