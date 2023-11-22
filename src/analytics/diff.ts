@@ -30,15 +30,18 @@ export function applyDiff(usage: Usage, existing: UserCommandUsage): UserCommand
                     commandKey,
                     {
                         usage: value.usage + (existing.usage[commandKey]?.usage ?? 0),
-                        argsUsage: R.pipe(
-                            value.argsUsage,
-                            R.toPairs.strict,
-                            R.map(([key, value]): [string, number] => [
-                                key,
-                                value + (existing.usage[commandKey]?.argsUsage[key] ?? 0),
-                            ]),
-                            R.fromPairs.strict,
-                        ),
+                        argsUsage: {
+                            ...existing.usage[commandKey]?.argsUsage,
+                            ...R.pipe(
+                                value.argsUsage,
+                                R.toPairs.strict,
+                                R.map(([key, value]): [string, number] => [
+                                    key,
+                                    value + (existing.usage[commandKey]?.argsUsage[key] ?? 0),
+                                ]),
+                                R.fromPairs.strict,
+                            ),
+                        },
                     },
                 ]),
                 R.fromPairs.strict,
