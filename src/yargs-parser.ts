@@ -24,6 +24,7 @@ import { open } from './actions/open.ts'
 import { openResource } from './actions/web.ts'
 import { cleanup, kafkaConfig } from './actions/kafka.ts'
 import { azure } from './actions/azure.ts'
+import { updateAnalytics } from './analytics'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
@@ -145,6 +146,11 @@ export const getYargsParser = (argv: string[]): Argv =>
                     describe: 'set the git dir to use for tsm git commands',
                 }),
             async (args) => {
+                if (args.gitDir == null) {
+                    log(`${chalk.red('git dir option required, run: ')}${chalk.yellow('tsm config --git-dir=<dir>')}`)
+                    process.exit(1)
+                }
+
                 if (args.gitDir) {
                     if (!(fs.existsSync(args.gitDir) && fs.statSync(args.gitDir).isDirectory())) {
                         log(`${chalk.red('Git dir does not exist: ')}${chalk.yellow(args.gitDir)}`)
@@ -286,3 +292,8 @@ export const getYargsParser = (argv: string[]): Argv =>
                 log('\ttsm azure token "scope" "app-name"')
             },
         )
+        .middleware(async (yargs) => {
+            const { $0: _, _: command, ...args } = yargs
+
+            updateAnalytics(command, args)
+        })
