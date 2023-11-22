@@ -57,14 +57,19 @@ export async function reportChangesSinceLast(existingVersion: string | null): Pr
     const changes = R.pipe(
         (await response.json()) as GithubResponse,
         R.map(({ commit: { author, message } }) => [author.name, message.split('\n')[0]]),
-        (commits) =>
-            existingVersion == null
-                ? commits
-                : R.pipe(
-                      commits,
-                      R.splitWhen(([, message]) => message.includes(existingVersion)),
-                      R.first(),
-                  ),
+        (commits) => {
+            if (existingVersion == null) return commits
+
+            const versions = commits.filter(([, message]) => message.includes('bump version'))
+            const previousVersionIndex = versions.findIndex(([, message]) => message.includes(existingVersion))
+            const relevantVersion = versions[previousVersionIndex > 0 ? previousVersionIndex - 1 : 0]
+
+            return R.pipe(
+                commits,
+                R.splitWhen(([, message]) => message === relevantVersion[1]),
+                R.first(),
+            )
+        },
         R.filter(([, message]) => !message.includes('bump version')),
     )
 

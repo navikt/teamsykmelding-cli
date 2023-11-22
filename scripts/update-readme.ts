@@ -24,4 +24,4 @@ ${availableCommands.map(([name, description]) => `* \`${name}\` - ${description}
 
 await Bun.write(readmeFile, originalFileContent.replace(readmeMarkersRegex, newContent))
 
-console.log('Updated README.md with cron schedule')
+console.log('Updated README.md with --help output')
