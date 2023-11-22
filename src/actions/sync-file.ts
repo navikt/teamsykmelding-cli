@@ -13,7 +13,7 @@ import {
 } from '../common/octokit.ts'
 import { log } from '../common/log.ts'
 import { Gitter } from '../common/git.ts'
-import inquirer from '../common/inquirer.ts'
+import inquirer, { hackilyFixBackToBackPrompt } from '../common/inquirer.ts'
 import { GIT_CACHE_DIR } from '../common/cache.ts'
 
 const reposQuery = /* GraphQL */ `
@@ -122,13 +122,16 @@ export async function syncFileAcrossRepos(query: string): Promise<void> {
     ])
 
     // Step 2, selecting a valid file in the source repo
+    await hackilyFixBackToBackPrompt()
     const fileToSync = await getValidFileInSource(sourceRepo.source)
 
     // Step 3, selecting target repos
+    await hackilyFixBackToBackPrompt()
     const otherRepos = relevantRepos.filter((it) => it.name !== sourceRepo.source)
     const targetRepos = await getTargetRepos(otherRepos)
 
     // Step 4, writing commit message
+    await hackilyFixBackToBackPrompt()
     const commitMessage = await inquirer.prompt<{ message: string }>({
         type: 'input',
         name: 'message',
@@ -140,6 +143,7 @@ export async function syncFileAcrossRepos(query: string): Promise<void> {
     log(`The commit message will be "${chalk.yellow(commitMessage.message)}"`)
 
     // Step 5, confirm
+    await hackilyFixBackToBackPrompt()
     const confirmResult = await inquirer.prompt({
         type: 'confirm',
         message: `Do you want to continue? This will create ${otherRepos.length} commits, one for each repo.`,

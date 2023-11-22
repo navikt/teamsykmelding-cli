@@ -2,7 +2,7 @@ import * as R from 'remeda'
 import open from 'open'
 import chalk from 'chalk'
 
-import inquirer from '../common/inquirer.ts'
+import inquirer, { hackilyFixBackToBackPrompt } from '../common/inquirer.ts'
 import { log } from '../common/log.ts'
 
 type Envs = {
@@ -105,6 +105,7 @@ export async function openResource(what: string | null, env: string | null): Pro
         return
     }
 
+    await hackilyFixBackToBackPrompt()
     const selectedEnv = await getAppEnv(cleanItem)
     await openApp(cleanItem, selectedEnv)
 }
