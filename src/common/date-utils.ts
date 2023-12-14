@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { differenceInDays, formatDistanceStrict } from 'date-fns'
+import { differenceInDays, formatDistanceStrict, formatISO, subDays } from 'date-fns'
 
 export function coloredTimestamp(timestamp: Date): string {
     const now = new Date()
@@ -12,4 +12,8 @@ export function coloredTimestamp(timestamp: Date): string {
     } else {
         return chalk.cyan(distance)
     }
+}
+
+export function subtractDays(days: number): string {
+    return formatISO(subDays(new Date(), days), { representation: 'date' })
 }

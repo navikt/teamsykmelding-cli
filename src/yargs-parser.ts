@@ -26,6 +26,7 @@ import { cleanup, kafkaConfig } from './actions/kafka.ts'
 import { azure } from './actions/azure.ts'
 import { updateAnalytics } from './analytics'
 import { showUsageAnalytics } from './analytics/analytics-global.ts'
+import { createSimpleSykmelding } from './actions/mock'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
@@ -86,6 +87,37 @@ export const getYargsParser = (argv: string[]): Argv =>
             () => {
                 log('Use one of the following commands:')
                 log('\ttsm git sync')
+            },
+        )
+
+        .command(
+            'mock',
+            'do stuff with the mock',
+            (yargs) =>
+                yargs.command(
+                    'simple-sykmelding',
+                    'create a basic 100% sykmelding',
+                    (yargs) =>
+                        yargs.positional('fnr', {
+                            type: 'string',
+                            demandOption: true,
+                        }),
+                    async (args) => {
+                        if (args.fnr == null) {
+                            log(
+                                `${chalk.red('Fnr required, run: ')}${chalk.yellow(
+                                    'tsm mock simple-sykmelding fnr=<fnr>',
+                                )}`,
+                            )
+                            process.exit(1)
+                        }
+
+                        await createSimpleSykmelding(args.fnr)
+                    },
+                ),
+            () => {
+                log('Use one of the following commands:')
+                log('\ttsm mock simple-sykmelding fnr=<fnr>')
             },
         )
         .command(

@@ -47,6 +47,7 @@ Nå er du klar til å bruke `tsm`!
 * `prs` - get all open pull requests
 * `repos` - get all repos
 * `git` - keep our repos in sync, ex: tsm git sync
+* `mock` - do stuff with the mock
 * `team` - get all team members
 * `sync-file` - sync a file across specified repos
 * `primary-branch` - get misc repo metadata
