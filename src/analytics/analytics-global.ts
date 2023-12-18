@@ -18,11 +18,13 @@ export async function showUsageAnalytics(): Promise<void> {
         usage,
         R.toPairs,
         R.sortBy([([, value]) => value.usage, 'desc']),
+        R.filter(([, value]) => value.usage > 1),
         R.forEach(([key, value]) => {
             log(`  ${chalk.blueBright(key)}: ${chalk.green(value.usage)}`)
             R.pipe(
                 value.argsUsage,
                 R.toPairs,
+                R.filter(([, value]) => value > 1),
                 R.forEach(([key, value]) => {
                     log(`    ${chalk.yellow(key)}: ${chalk.green(value)}`)
                 }),
