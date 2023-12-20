@@ -151,7 +151,6 @@ export async function syncFileAcrossRepos(query: string): Promise<void> {
     })
 
     if (confirmResult.confirm) {
-        console.log(sourceRepo.source, targetRepos, fileToSync, commitMessage.message)
         await copyFileToRepos(sourceRepo.source, targetRepos, fileToSync, commitMessage.message)
     } else {
         log(chalk.red('Aborting!'))

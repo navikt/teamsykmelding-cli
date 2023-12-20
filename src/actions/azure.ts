@@ -1,6 +1,7 @@
 // TODO don't disable eslint? :D
 /* eslint-disable */
 import { getAllAppNames, promptForAppName } from '../common/kubectl.ts'
+import { log } from '../common/log.ts'
 interface BearerTokenResponse {
     access_token: string
 }
@@ -51,5 +52,5 @@ export async function azure(appname: string | undefined | null, scope: string): 
 
     const token = ((await result.json()) as BearerTokenResponse).access_token
 
-    console.log(token)
+    log(token)
 }
