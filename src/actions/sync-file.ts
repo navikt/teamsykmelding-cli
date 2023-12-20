@@ -145,11 +145,12 @@ export async function syncFileAcrossRepos(query: string): Promise<void> {
     // Step 5, confirm
     await hackilyFixBackToBackPrompt()
     const confirmResult = await inquirer.prompt({
+        name: 'confirm',
         type: 'confirm',
         message: `Do you want to continue? This will create ${otherRepos.length} commits, one for each repo.`,
     })
 
-    if (confirmResult) {
+    if (confirmResult.confirm) {
         await copyFileToRepos(sourceRepo.source, targetRepos, fileToSync, commitMessage.message)
     } else {
         log(chalk.red('Aborting!'))
