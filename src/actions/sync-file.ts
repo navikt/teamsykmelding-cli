@@ -78,7 +78,7 @@ async function getTargetRepos<Repo extends { name: string }>(otherRepos: Repo[])
         ],
     })
 
-    if (checkboxResponse.target.includes('All repos')) {
+    if (checkboxResponse.target.includes('all')) {
         return otherRepos
     } else if (checkboxResponse.target.length !== 0) {
         return otherRepos.filter((it) => checkboxResponse.target.includes(it.name))
@@ -151,6 +151,7 @@ export async function syncFileAcrossRepos(query: string): Promise<void> {
     })
 
     if (confirmResult.confirm) {
+        console.log(sourceRepo.source, targetRepos, fileToSync, commitMessage.message)
         await copyFileToRepos(sourceRepo.source, targetRepos, fileToSync, commitMessage.message)
     } else {
         log(chalk.red('Aborting!'))
@@ -197,7 +198,7 @@ async function copyFileToRepos(
                 .commit(message)
                 .push()
 
-            log(`${chalk.green(`Pushed to repo ${pushResult.repo} to branch ${pushResult.branch}`)} - ${it.url}`)
+            log(`${chalk.green(`Pushed to repo ${pushResult.repo}`)} - ${it.url}`)
         }),
     )
 }
