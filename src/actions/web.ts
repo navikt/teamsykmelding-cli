@@ -24,6 +24,8 @@ const staticPages = {
     docs: 'https://teamsykmelding.intern.nav.no/',
     unleash: 'https://teamsykmelding-unleash-web.nav.cloud.nais.io/',
     ida: 'https://ida.intern.nav.no/',
+    flexjar: 'https://flexjar.intern.nav.no/',
+    amplitude: 'https://app.eu.amplitude.com/analytics/nav/space/e-i94ld6q/',
 }
 
 const availablePages = {
