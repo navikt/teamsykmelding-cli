@@ -1,4 +1,5 @@
 import chalk from 'chalk'
+import { semver } from 'bun'
 
 import packageJson from '../tsm-cli/package.json'
 
@@ -25,6 +26,13 @@ if (
             )
         }
     }
+}
+
+if (!semver.satisfies(Bun.version, '>= 1.0.25')) {
+    log(chalk.red('Oh no!!!!!'))
+    log(`This version of ${chalk.blue('tsm')} requires at least ${chalk.green('bun')} version ${chalk.green('1.0.25')}`)
+    log(`Please run ${chalk.green('bun upgrade')} to upgrade`)
+    process.exit(1)
 }
 
 await getYargsParser(process.argv).demandCommand().strict().parse()

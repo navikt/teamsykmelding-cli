@@ -31,8 +31,8 @@ import { createSimpleSykmelding } from './actions/mock'
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
         .scriptName('tsm')
-        .command('check', 'check that all tooling looks OK', async () => checkTooling())
-        .command('auth', 'login to gcloud', async () => auth())
+        .command('check', 'check that all tooling looks OK', checkTooling)
+        .command('auth', 'login to gcloud', auth)
         .command(
             'commits',
             'get the last commits for every repo in the team',

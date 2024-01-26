@@ -1,18 +1,19 @@
 import * as R from 'remeda'
 import chalk from 'chalk'
+import { $, ShellPromise } from 'bun'
 
 import { log } from '../common/log.ts'
 
 const REQUIRED_CLI = ['gh', 'yarn', 'kubectl', 'nais', 'gcloud'] as const
-const CLI_CHECKS: [cli: (typeof REQUIRED_CLI)[number], check: () => string | null][] = [
+const CLI_CHECKS: [cli: (typeof REQUIRED_CLI)[number], check: () => Promise<string | null>][] = [
     ['gh', checkGithubCli],
     ['kubectl', checkKubectl],
-    ['yarn', () => defaultVersionCheck('yarn --version')],
-    ['nais', () => defaultVersionCheck('nais --version')],
-    ['gcloud', () => defaultVersionCheck('gcloud --version')],
+    ['yarn', () => defaultExistsCheck('yarn', $`yarn --version`)],
+    ['nais', () => defaultExistsCheck('nais', $`nais --version`)],
+    ['gcloud', () => defaultExistsCheck('gcloud', $`gcloud --version`)],
 ]
 
-export function checkTooling(): void {
+export async function checkTooling(): Promise<void> {
     log(chalk.blueBright('Checking tools...'))
     const missing = missingClis()
     if (missing.length > 0) {
@@ -24,11 +25,12 @@ export function checkTooling(): void {
         return
     }
 
-    const [ok, bad] = R.pipe(
+    const results = await R.pipe(
         CLI_CHECKS,
-        R.map(([cli, check]): [string, string | null] => [cli, check()]),
-        R.partition(([, result]) => result == null),
+        R.map(async ([cli, check]) => [cli, await check()]),
+        (it) => Promise.all(it),
     )
+    const [ok, bad] = R.partition(results, ([, result]) => result == null)
 
     if (ok.length) {
         log(chalk.green(`The following CLIs are good!`))
@@ -47,14 +49,13 @@ export function checkTooling(): void {
     }
 }
 
-function checkGithubCli(): string | null {
-    const res = Bun.spawnSync('gh auth status'.split(' '))
-    const stdout = res.stdout.toString()
-    const stderr = res.stderr.toString()
+async function checkGithubCli(): Promise<string | null> {
+    const res = await $`gh auth status`.quiet()
+
     if (
         res.exitCode === 0 &&
         // gh on OSX puts output in stdout,gh on linux puts it in stderr
-        (stdout.includes('Logged in to github.com') || stderr.includes('Logged in to github.com'))
+        (res.stdout.includes('Logged in to github.com') || res.stderr.includes('Logged in to github.com'))
     ) {
         return null
     } else {
@@ -62,8 +63,8 @@ function checkGithubCli(): string | null {
     }
 }
 
-function checkKubectl(): string | null {
-    const res = Bun.spawnSync('kubectl version --client --output=json'.split(' '))
+async function checkKubectl(): Promise<string | null> {
+    const res = await $`kubectl version --client --output=json`.quiet()
     if (res.exitCode === 0) {
         return null
     } else {
@@ -71,13 +72,13 @@ function checkKubectl(): string | null {
     }
 }
 
-function defaultVersionCheck(command: string): string | null {
-    const res = Bun.spawnSync(`${command}`.split(' '))
+async function defaultExistsCheck(what: string, command: ShellPromise): Promise<string | null> {
+    const res = await command.quiet()
 
     if (res.exitCode === 0) {
         return null
     } else {
-        return `${command.split(' ').at(0)} is not configured correctly. Please run '${command}' to see what is wrong.`
+        return `${what} is not configured correctly. Please run '${command}' to see what is wrong.`
     }
 }
 

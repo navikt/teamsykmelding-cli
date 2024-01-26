@@ -1,10 +1,9 @@
+import { $ } from 'bun'
+
 import { logError } from '../common/log.ts'
 
-export function auth(): void {
-    const res = Bun.spawnSync(`gcloud auth login --update-adc`.split(' '), {
-        stdout: 'inherit',
-        stderr: 'inherit',
-    })
+export async function auth(): Promise<void> {
+    const res = await $`gcloud auth login --update-adc`
 
     if (res.exitCode === 0) {
         return
