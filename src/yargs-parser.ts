@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import yargs, { Argv } from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import chalk from 'chalk'
+import { isValid, parseISO, sub } from 'date-fns'
 
 import packageJson from '../tsm-cli/package.json'
 
@@ -27,6 +28,7 @@ import { azure } from './actions/azure.ts'
 import { updateAnalytics } from './analytics'
 import { showUsageAnalytics } from './analytics/analytics-global.ts'
 import { createSimpleSykmelding } from './actions/mock'
+import { displayCommitsForPeriod } from './actions/work/work.ts'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
@@ -89,7 +91,29 @@ export const getYargsParser = (argv: string[]): Argv =>
                 log('\ttsm git sync')
             },
         )
+        .command(
+            'work',
+            'see what has happened the last week (or more)',
+            (yargs) =>
+                yargs
+                    .positional('fom', { type: 'string' })
+                    .positional('days', { type: 'string', implies: 'fom' })
+                    .option('unknown', {
+                        type: 'boolean',
+                        describe: 'include uncategorized commits',
+                    }),
+            (args) => {
+                if (args.fom && !isValid(parseISO(args.fom))) {
+                    log(`The value ${chalk.red(args.fom)} is not a valid date`)
+                    return
+                }
 
+                const fom = args.fom ? parseISO(args.fom) : sub(new Date(), { days: 7 })
+                const days = args.days ? parseInt(args.days) : 7
+
+                return displayCommitsForPeriod(fom, days, args.unknown ?? false)
+            },
+        )
         .command(
             'mock',
             'do stuff with the mock',

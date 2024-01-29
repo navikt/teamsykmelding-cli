@@ -22,7 +22,18 @@ export async function ghGqlQuery<Result = never>(
     query: string,
     variables?: Record<string, unknown>,
 ): GraphQLResponse<Result> {
-    return getOctokitClient().graphql<GraphQLResponse<Result>>(query, variables)
+    // TODO: local dev cache, remove it
+    if (true) {
+        // return await Bun.file('cache.json').json<GraphQLResponse<Result>>()
+    }
+
+    const promise = await getOctokitClient().graphql<GraphQLResponse<Result>>(query, variables)
+
+    if (true) {
+        await Bun.write('cache.json', JSON.stringify(promise, null, 2))
+    }
+
+    return promise
 }
 
 function getGithubCliToken(): string {
