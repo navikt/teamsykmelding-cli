@@ -98,6 +98,7 @@ export const getYargsParser = (argv: string[]): Argv =>
                 yargs
                     .positional('fom', { type: 'string' })
                     .positional('days', { type: 'string', implies: 'fom' })
+                    .positional('author', { type: 'string' })
                     .option('unknown', {
                         type: 'boolean',
                         describe: 'include uncategorized commits',
@@ -111,7 +112,7 @@ export const getYargsParser = (argv: string[]): Argv =>
                 const fom = args.fom ? parseISO(args.fom) : sub(new Date(), { days: 7 })
                 const days = args.days ? parseInt(args.days) : 7
 
-                return displayCommitsForPeriod(fom, days, args.unknown ?? false)
+                return displayCommitsForPeriod(fom, days, args.unknown ?? false, args.author ?? null)
             },
         )
         .command(

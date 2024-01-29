@@ -68,12 +68,19 @@ export async function displayCommitsForPeriod(
     fom: Date,
     days: number,
     includeUncategorizeable: boolean,
+    author: string | null,
 ): Promise<void> {
     const team = 'teamsykmelding'
     const fomDate = formatISO(fom)
     const tomDate = formatISO(add(fom, { days }))
 
-    log(chalk.green(`Getting commits for team ${team} from ${humanDay(fomDate)} to ${humanDay(tomDate)}\n`))
+    log(
+        chalk.green(
+            `Getting commits for team ${team} from ${humanDay(fomDate)} to ${humanDay(tomDate)}${
+                author != null ? ` for author ${author}` : ''
+            }\n`,
+        ),
+    )
 
     const queryResult = await ghGqlQuery<OrgTeamRepoResult<CommitsInRangeNode>>(commitsInRangeQuery, {
         team,
@@ -96,8 +103,12 @@ export async function displayCommitsForPeriod(
                 ? 'dependabot-merge'
                 : commit.commit.message.match(/^(\w+):/)?.[1] ?? 'unknown',
         })),
+        (it) => {
+            if (author == null) return it
+
+            return R.filter(it, (it) => it.commit.author.user.login === author)
+        },
         R.groupBy((it) => it.type),
-        // R.omit(['automated', 'dependabot-merge', 'unknown']),
     )
 
     const { feat, fix, chore, docs, automated, 'dependabot-merge': dependabotMerges, unknown, ...rest } = result
@@ -139,8 +150,8 @@ export async function displayCommitsForPeriod(
         }
     }
 
-    if (automated || dependabotMerges || unknown) log('\nThere were also:')
+    if (automated || dependabotMerges || (unknown && !includeUncategorizeable)) log('\nThere were also:')
     if (automated) log(`  ${chalk.yellow(automated.length)} automated commits`)
     if (dependabotMerges) log(`  ${chalk.yellow(dependabotMerges.length)} dependabot merges`)
-    if (unknown) log(`  ${chalk.yellow(unknown.length)} commits of unknown type`)
+    if (unknown && !includeUncategorizeable) log(`  ${chalk.yellow(unknown.length)} commits of unknown type`)
 }
