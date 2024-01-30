@@ -3,7 +3,8 @@ import fs from 'node:fs'
 import yargs, { Argv } from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import chalk from 'chalk'
-import { isValid, parseISO, sub } from 'date-fns'
+import { differenceInDays, isValid, parseISO, startOfWeek, sub } from 'date-fns'
+import { nb } from 'date-fns/locale'
 
 import packageJson from '../tsm-cli/package.json'
 
@@ -102,6 +103,11 @@ export const getYargsParser = (argv: string[]): Argv =>
                     .option('unknown', {
                         type: 'boolean',
                         describe: 'include uncategorized commits',
+                    })
+                    .option('this-week', {
+                        type: 'boolean',
+                        describe: 'from the start of this week until today',
+                        conflicts: ['fom', 'days'],
                     }),
             (args) => {
                 if (args.fom && !isValid(parseISO(args.fom))) {
@@ -109,10 +115,17 @@ export const getYargsParser = (argv: string[]): Argv =>
                     return
                 }
 
-                const fom = args.fom ? parseISO(args.fom) : sub(new Date(), { days: 7 })
-                const days = args.days ? parseInt(args.days) : 7
+                if (args.thisWeek) {
+                    const fom = startOfWeek(new Date(), { locale: nb })
+                    const days = differenceInDays(new Date(), fom)
 
-                return displayCommitsForPeriod(fom, days, args.unknown ?? false, args.author ?? null)
+                    return displayCommitsForPeriod(fom, days, args.unknown ?? false, args.author ?? null)
+                } else {
+                    const fom = args.fom ? parseISO(args.fom) : sub(new Date(), { days: 7 })
+                    const days = args.days ? parseInt(args.days) : 7
+
+                    return displayCommitsForPeriod(fom, days, args.unknown ?? false, args.author ?? null)
+                }
             },
         )
         .command(
