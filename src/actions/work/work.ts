@@ -99,9 +99,7 @@ export async function displayCommitsForPeriod(
         R.flatMap((it) => it.commits.map((commit) => ({ repo: it.name, commit }))),
         R.map((commit) => ({
             ...commit,
-            type: /^Merge pull request.*dependabot/g.test(commit.commit.message)
-                ? 'dependabot-merge'
-                : commit.commit.message.match(/^(\w+):/)?.[1] ?? 'unknown',
+            type: classifyCommit(commit.commit),
         })),
         (it) => {
             if (author == null) return it
@@ -143,9 +141,9 @@ export async function displayCommitsForPeriod(
             const cleanMessage = commit.commit.message.split('\n')[0].trim()
 
             log(
-                `  ${cleanMessage} in ${chalk.green(commit.repo)} (by ${authorToColorAvatar(
-                    commit.commit.author.user.login,
-                )} ${commit.commit.author.user.login})`,
+                `  ${cleanMessage} in ${chalk.green(commit.repo)} (by ${
+                    commit.commit.author.user.login
+                } ${authorToColorAvatar(commit.commit.author.user.login)})`,
             )
         }
     }
@@ -154,4 +152,20 @@ export async function displayCommitsForPeriod(
     if (automated) log(`  ${chalk.yellow(automated.length)} automated commits`)
     if (dependabotMerges) log(`  ${chalk.yellow(dependabotMerges.length)} dependabot merges`)
     if (unknown && !includeUncategorizeable) log(`  ${chalk.yellow(unknown.length)} commits of unknown type`)
+}
+
+function classifyCommit(commit: {
+    message: string
+    author: { date: string; email: string; name: string; user: { name: string; login: string } }
+}): string {
+    switch (true) {
+        case /^Merge pull request.*dependabot/g.test(commit.message):
+            return 'dependabot-merge'
+        case commit.message.includes('[skip ci] bump version'):
+            return 'automated'
+        case commit.message.includes('chore(deps)'):
+            return 'deps'
+        default:
+            return commit.message.match(/^(\w+):/)?.[1] ?? 'unknown'
+    }
 }
