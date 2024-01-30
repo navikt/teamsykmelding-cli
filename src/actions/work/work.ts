@@ -1,5 +1,5 @@
 import * as R from 'remeda'
-import { add, endOfDay, formatISO } from 'date-fns'
+import { add, endOfDay, formatISO, startOfDay } from 'date-fns'
 import chalk from 'chalk'
 
 import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../../common/octokit.ts'
@@ -71,7 +71,7 @@ export async function displayCommitsForPeriod(
     author: string | null,
 ): Promise<void> {
     const team = 'teamsykmelding'
-    const fomDate = formatISO(fom)
+    const fomDate = formatISO(startOfDay(fom))
     const tomDate = formatISO(endOfDay(add(fom, { days })))
 
     log(
