@@ -89,6 +89,14 @@ export async function openResource(what: string | null, env: string | null): Pro
         ...R.difference(R.keys(availablePages), R.keys(hiddenPages)),
         ...R.keys(availableApps).map((it) => `app: ${it}`),
     ]
+
+    const initialFilteredValues = everything.filter((page) => page.includes(what ?? ''))
+    // If the initial input only yields a single hit, just open it
+    if (initialFilteredValues.length === 1) {
+        await openAppOrPage(initialFilteredValues[0])
+        return
+    }
+
     const { selectedRootItem } = await inquirer.prompt([
         {
             type: 'autocomplete',
@@ -98,7 +106,12 @@ export async function openResource(what: string | null, env: string | null): Pro
                 everything.filter((page) => page.includes(input ?? what ?? '')),
         },
     ])
-    const cleanItem = selectedRootItem.replace('app: ', '')
+
+    await openAppOrPage(selectedRootItem)
+}
+
+async function openAppOrPage(appOrPage: string): Promise<void> {
+    const cleanItem = appOrPage.replace('app: ', '')
 
     if (!isApp(cleanItem)) {
         const staticPage = availablePages[cleanItem as PageKeys]
@@ -109,6 +122,7 @@ export async function openResource(what: string | null, env: string | null): Pro
 
     await hackilyFixBackToBackPrompt()
     const selectedEnv = await getAppEnv(cleanItem)
+
     await openApp(cleanItem, selectedEnv)
 }
 
