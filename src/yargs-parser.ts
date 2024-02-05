@@ -106,6 +106,7 @@ export const getYargsParser = (argv: string[]): Argv =>
                     })
                     .option('this-week', {
                         type: 'boolean',
+                        alias: 't',
                         describe: 'from the start of this week until today',
                         conflicts: ['fom', 'days'],
                     }),

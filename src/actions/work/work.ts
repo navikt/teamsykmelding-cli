@@ -125,13 +125,26 @@ export async function displayCommitsForPeriod(
             continue
         }
 
-        for (const commit of orderedCategories[category]) {
+        const deduplicatedMessagesInCategory = R.groupBy(
+            orderedCategories[category],
+            (it) => it.commit.message.split('\n')[0],
+        )
+
+        for (const messages of R.values(deduplicatedMessagesInCategory)) {
+            const commit = messages[0]
             const cleanMessage = commit.commit.message
                 .split('\n')[0]
                 .replace(/^(\w+):/, '')
+                .replace(/\[skip\s*-?ci]/, '')
                 .trim()
 
-            log(`  ${cleanMessage} in ${chalk.green(commit.repo)}`)
+            if (messages.length === 1) {
+                log(`  ${cleanMessage} in ${chalk.green(commit.repo)}`)
+            } else if (messages.length <= 3) {
+                log(`  ${cleanMessage} in ${messages.map((it) => chalk.green(it.repo)).join(', ')}`)
+            } else {
+                log(`  ${cleanMessage} in ${chalk.blueBright(`${messages.length} repos`)}`)
+            }
         }
     }
 
