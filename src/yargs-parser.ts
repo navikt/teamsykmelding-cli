@@ -30,6 +30,7 @@ import { updateAnalytics } from './analytics'
 import { showUsageAnalytics } from './analytics/analytics-global.ts'
 import { createSimpleSykmelding } from './actions/mock'
 import { displayCommitsForPeriod } from './actions/work/work.ts'
+import { openRepoWeb } from './actions/gh.ts'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
@@ -304,6 +305,24 @@ export const getYargsParser = (argv: string[]): Argv =>
                 await openResource(args.what ?? null, args.env ?? null)
             },
         )
+        .command(
+            'gh [repo]',
+            'open github repo in browser',
+            (yargs) =>
+                yargs
+                    .positional('repo', {
+                        type: 'string',
+                        description: 'what to open, e.g. "sykmeldinger", can be partial',
+                        default: null,
+                    })
+                    .option('skip-cache', {
+                        type: 'boolean',
+                        description: 'force fetching of repos from github',
+                        default: undefined,
+                    }),
+            async (args) => openRepoWeb(args.repo ?? null, args.skipCache || undefined),
+        )
+
         .command(
             'kafka',
             'kafka cli for kafka stuff',

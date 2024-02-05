@@ -60,6 +60,7 @@ Nå er du klar til å bruke `tsm`!
 * `analytics` - get your own usage stats for tsm cli
 * `open` - open command that opens a project in IntelliJ IDEA
 * `web` - open web page
+* `gh` - open github repo in browser
 * `kafka` - kafka cli for kafka stuff
 * `azure` - azure cli for azure stuff
 
