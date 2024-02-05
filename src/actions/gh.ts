@@ -33,6 +33,12 @@ export async function openRepoWeb(search: string | null, noCache: true | undefin
         return
     }
 
+    const initialFilter = repos.filter((name) => name.includes(search ?? ''))
+    if (initialFilter.length === 1) {
+        await openRepo(initialFilter[0])
+        return
+    }
+
     const { item } = await inquirer.prompt([
         {
             type: 'autocomplete',
