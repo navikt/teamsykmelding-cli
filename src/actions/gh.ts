@@ -61,6 +61,8 @@ async function getRepos(cache: boolean = true): Promise<string[]> {
         })
     }
 
+    upgradeCacheInBackground()
+
     const cachedRepos = await loadCachedRepos()
     if (cachedRepos.length > 0) return cachedRepos
 
@@ -70,6 +72,10 @@ async function getRepos(cache: boolean = true): Promise<string[]> {
 
         return repos
     })
+}
+
+function upgradeCacheInBackground(): void {
+    fetchRepos().then((repos) => saveCachedRepos(repos))
 }
 
 async function fetchRepos(): Promise<string[]> {
@@ -84,7 +90,8 @@ async function fetchRepos(): Promise<string[]> {
 
 async function loadCachedRepos(): Promise<string[]> {
     try {
-        const cachedRepos = Bun.file(path.join(CACHE_DIR, 'repos.json'))
+        const team = await getTeam()
+        const cachedRepos = Bun.file(path.join(CACHE_DIR, `repos-${team}.json`))
         if (!(await cachedRepos.exists())) return []
 
         return await cachedRepos.json<string[]>()
@@ -95,7 +102,8 @@ async function loadCachedRepos(): Promise<string[]> {
 }
 
 async function saveCachedRepos(repos: string[]): Promise<void> {
-    const cachedRepos = Bun.file(path.join(CACHE_DIR, 'repos.json'))
+    const team = await getTeam()
+    const cachedRepos = Bun.file(path.join(CACHE_DIR, `repos-${team}.json`))
     await Bun.write(cachedRepos, JSON.stringify(repos))
 }
 
