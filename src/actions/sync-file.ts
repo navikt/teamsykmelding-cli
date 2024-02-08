@@ -15,6 +15,7 @@ import { log } from '../common/log.ts'
 import { Gitter } from '../common/git.ts'
 import inquirer, { hackilyFixBackToBackPrompt } from '../common/inquirer.ts'
 import { GIT_CACHE_DIR } from '../common/cache.ts'
+import { getTeam } from '../common/config.ts'
 
 const reposQuery = /* GraphQL */ `
     query ($team: String!) {
@@ -33,11 +34,11 @@ const reposQuery = /* GraphQL */ `
 `
 
 async function getAllRepos(): Promise<BaseRepoNode<unknown>[]> {
-    log(chalk.green(`Querying Github for all active repositories for team teamsykmelding...`))
+    const team = await getTeam()
 
-    const result = await ghGqlQuery<OrgTeamRepoResult<unknown>>(reposQuery, {
-        team: 'teamsykmelding',
-    })
+    log(chalk.green(`Querying Github for all active repositories for team ${team}...`))
+
+    const result = await ghGqlQuery<OrgTeamRepoResult<unknown>>(reposQuery, { team })
 
     return removeIgnoredAndArchived(result.organization.team.repositories.nodes)
 }

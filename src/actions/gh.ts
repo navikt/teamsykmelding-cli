@@ -7,6 +7,7 @@ import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult } from '../common/o
 import inquirer from '../common/inquirer.ts'
 import { CACHE_DIR } from '../common/cache.ts'
 import { log, logError } from '../common/log.ts'
+import { getTeam } from '../common/config.ts'
 
 const reposForTeamQuery = /* GraphQL */ `
     query ($team: String!) {
@@ -72,7 +73,7 @@ async function getRepos(cache: boolean = true): Promise<string[]> {
 }
 
 async function fetchRepos(): Promise<string[]> {
-    const team = 'teamsykmelding'
+    const team = await getTeam()
 
     const queryResult = await ghGqlQuery<OrgTeamRepoResult<unknown>>(reposForTeamQuery, {
         team,

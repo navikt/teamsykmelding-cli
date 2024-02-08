@@ -11,6 +11,7 @@ import {
     OrgTeamRepoResult,
     removeIgnoredAndArchived,
 } from '../common/octokit.ts'
+import { getTeam } from '../common/config.ts'
 
 const reposQuery = /* GraphQL */ `
     query ($team: String!) {
@@ -29,11 +30,11 @@ const reposQuery = /* GraphQL */ `
 `
 
 async function getAllRepos(): Promise<BaseRepoNode<unknown>[]> {
-    log(chalk.green(`Getting all active repositories for team teamsykmelding...`))
+    const team = await getTeam()
 
-    const result = await ghGqlQuery<OrgTeamRepoResult<unknown>>(reposQuery, {
-        team: 'teamsykmelding',
-    })
+    log(chalk.green(`Getting all active repositories for team ${team}...`))
+
+    const result = await ghGqlQuery<OrgTeamRepoResult<unknown>>(reposQuery, { team })
 
     return removeIgnoredAndArchived(result.organization.team.repositories.nodes)
 }
