@@ -6,6 +6,7 @@ import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndAr
 import { log } from '../../common/log.ts'
 import { humanDay } from '../../common/date-utils.ts'
 import { authorToColorAvatar } from '../../common/format-utils.ts'
+import { getTeam } from '../../common/config.ts'
 
 type CommitsInRangeNode = {
     defaultBranchRef: {
@@ -70,7 +71,7 @@ export async function displayCommitsForPeriod(
     includeUncategorizeable: boolean,
     author: string | null,
 ): Promise<void> {
-    const team = 'teamsykmelding'
+    const team = await getTeam()
     const fomDate = formatISO(startOfDay(fom))
     const tomDate = formatISO(endOfDay(add(fom, { days })))
 

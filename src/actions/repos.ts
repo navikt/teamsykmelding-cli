@@ -5,6 +5,7 @@ import { parseISO } from 'date-fns'
 import { log } from '../common/log.ts'
 import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../common/octokit.ts'
 import { coloredTimestamp } from '../common/date-utils.ts'
+import { getTeam } from '../common/config.ts'
 
 type ExtraPropsOnRepo = {
     primaryLanguage: {
@@ -34,7 +35,7 @@ const reposQuery = /* GraphQL */ `
 `
 
 export async function getRepos(): Promise<void> {
-    const team = 'teamsykmelding'
+    const team = await getTeam()
 
     log(chalk.green(`Getting all repositories for team ${team}...`))
 

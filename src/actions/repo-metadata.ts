@@ -3,6 +3,7 @@ import chalk from 'chalk'
 
 import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../common/octokit.ts'
 import { log } from '../common/log.ts'
+import { getTeam } from '../common/config.ts'
 
 const reposQuery = /* GraphQL */ `
     query OurRepos($team: String!) {
@@ -33,7 +34,7 @@ async function getMainBranchPerRepo(team: string): Promise<[string, string][]> {
 }
 
 export async function getRepoMainBranch(showMain: boolean): Promise<void> {
-    const openPrs = await getMainBranchPerRepo('teamsykmelding')
+    const openPrs = await getMainBranchPerRepo(await getTeam())
     const notMain = openPrs.filter(([, mainbranch]) => mainbranch !== 'main').length
 
     if (!showMain && notMain === 0) {

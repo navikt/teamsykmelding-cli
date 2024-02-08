@@ -214,14 +214,32 @@ export const getYargsParser = (argv: string[]): Argv =>
             'config',
             'set config for tsm',
             (yargs) =>
-                yargs.positional('git-dir', {
-                    type: 'string',
-                    describe: 'set the git dir to use for tsm git commands',
-                }),
+                yargs
+                    .positional('git-dir', {
+                        type: 'string',
+                        describe: 'set the git dir to use for tsm git commands',
+                    })
+                    .positional('team', {
+                        type: 'string',
+                        describe: 'set the team to use for tsm commands',
+                    }),
             async (args) => {
-                if (args.gitDir == null) {
-                    log(`${chalk.red('git dir option required, run: ')}${chalk.yellow('tsm config --git-dir=<dir>')}`)
-                    process.exit(1)
+                if (args.gitDir == null && args.team == null) {
+                    const config = await getConfig()
+
+                    log(chalk.green('Current config:'))
+                    Object.entries(config).forEach(([key, value]) => {
+                        log(`${key}: ${chalk.yellow(value)}`)
+                    })
+                    return
+                }
+
+                if (args.team) {
+                    await updateConfig({
+                        team: args.team,
+                    })
+                    log(`Team set to: ${chalk.green(args.team)}`)
+                    return
                 }
 
                 if (args.gitDir) {
@@ -236,6 +254,7 @@ export const getYargsParser = (argv: string[]): Argv =>
                     await updateConfig({
                         gitDir: args.gitDir,
                     })
+                    return
                 }
             },
         )

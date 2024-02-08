@@ -1,6 +1,8 @@
+import path from 'node:path'
+
 import chalk from 'chalk'
 
-import { getConfig, updateConfig } from './config.ts'
+import { CACHE_DIR } from './cache.ts'
 import inquirer from './inquirer.ts'
 import { log } from './log.ts'
 
@@ -18,7 +20,7 @@ const authorOptions: Author[] = [
 ]
 
 export async function promptForCoAuthors(): Promise<Author[]> {
-    const { coAuthors: previouslyUsedCoAuthors } = await getConfig()
+    const previouslyUsedCoAuthors = await getCachedCoAuthors()
 
     const selectedAuthors = await inquirer.prompt({
         type: 'checkbox',
@@ -38,13 +40,27 @@ export async function promptForCoAuthors(): Promise<Author[]> {
         return promptForCoAuthors()
     }
 
-    await updateConfig({
-        coAuthors: selectedAuthors.coAuthors,
-    })
+    await cacheCoAuthors(selectedAuthors.coAuthors)
 
     return selectedAuthors.coAuthors
 }
 
 export function createCoAuthorsText(authors: Author[]): string {
     return authors.map(([name, email]) => `Co-authored-by: ${name} <${email}>`).join('\n')
+}
+
+async function cacheCoAuthors(authors: Author[]): Promise<void> {
+    const coAuthorsFile = Bun.file(path.join(CACHE_DIR, 'co-authors.json'))
+
+    await Bun.write(coAuthorsFile, JSON.stringify(authors))
+}
+
+async function getCachedCoAuthors(): Promise<Author[] | []> {
+    const coAuthorsFile = Bun.file(path.join(CACHE_DIR, 'co-authors.json'))
+
+    if (await coAuthorsFile.exists()) {
+        return coAuthorsFile.json<Author[]>()
+    }
+
+    return []
 }

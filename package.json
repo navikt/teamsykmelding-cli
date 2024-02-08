@@ -7,7 +7,7 @@
         "lint-staged": "lint-staged",
         "build": "bun x rimraf tsm-cli/bin/tsm && bun run build-cli && bun run sanity-check",
         "build-cli": "bun run src/build.ts",
-        "sanity-check": "./tsm-cli/bin/tsm --help",
+        "sanity-check": "./tsm-cli/bin/tsm config --team=tsm && ./tsm-cli/bin/tsm --help",
         "prepare": "husky install",
         "postinstall": "bun x prettier package.json --write && echo \"Prettiered package.json\""
     },

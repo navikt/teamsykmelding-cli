@@ -6,6 +6,7 @@ import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndAr
 import { log } from '../common/log.ts'
 import { coloredTimestamp } from '../common/date-utils.ts'
 import { authorToColorAvatar } from '../common/format-utils.ts'
+import { getTeam } from '../common/config.ts'
 
 type PrNode = {
     title: string
@@ -88,7 +89,7 @@ async function getPrs(
 }
 
 export async function openPrs(includeDrafts: boolean, noBot: boolean): Promise<void> {
-    const openPrs = await getPrs('teamsykmelding', { includeDrafts, noBot })
+    const openPrs = await getPrs(await getTeam(), { includeDrafts, noBot })
 
     R.pipe(
         openPrs,

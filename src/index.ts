@@ -6,6 +6,7 @@ import packageJson from '../tsm-cli/package.json'
 import { hasNewVersionCached } from './self-updater.ts'
 import { log } from './common/log.ts'
 import { getYargsParser } from './yargs-parser.ts'
+import { isTeamConfigured } from './common/config.ts'
 
 if (
     Bun.argv.find((it) => it.includes('update')) == null &&
@@ -32,6 +33,12 @@ if (!semver || !semver.satisfies(Bun.version, '>= 1.0.25')) {
     log(chalk.red('Oh no!!!!!'))
     log(`This version of ${chalk.blue('tsm')} requires at least ${chalk.green('bun')} version ${chalk.green('1.0.25')}`)
     log(`Please run ${chalk.green('bun upgrade')} to upgrade`)
+    process.exit(1)
+}
+
+if (!(await isTeamConfigured()) && !Bun.argv.includes('config')) {
+    log(chalk.red('No team configured, please run:'))
+    log(chalk.green('tsm config --team=<team-name>'))
     process.exit(1)
 }
 

@@ -5,6 +5,7 @@ import chalk from 'chalk'
 import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../common/octokit.ts'
 import { log } from '../common/log.ts'
 import { coloredTimestamp } from '../common/date-utils.ts'
+import { getTeam } from '../common/config.ts'
 
 type CheckSuite = {
     status: string
@@ -113,7 +114,7 @@ function coloredStatus(action: CheckSuite): string {
 }
 
 export async function lastCommits(order: 'asc' | 'desc', limit: number | undefined): Promise<void> {
-    const lastCommits = await getRepositories('teamsykmelding', order, limit)
+    const lastCommits = await getRepositories(await getTeam(), order, limit)
 
     log(
         lastCommits

@@ -14,15 +14,15 @@ fs.mkdirSync(CONFIG_DIR, { recursive: true })
 await migrateFromCacheToConfigDir(CACHE_DIR, CONFIG_DIR)
 
 type Config = {
+    team: string
     gitDir: string | undefined
     ide: string | undefined
-    coAuthors: [string, string, string][] | undefined
 }
 
-const defaultConfig: Config = {
+const defaultConfig: Omit<Config, 'team'> & Partial<Pick<Config, 'team'>> = {
+    team: undefined,
     gitDir: undefined,
     ide: 'idea',
-    coAuthors: undefined,
 }
 
 export async function updateConfig(config: Partial<Config>): Promise<Config> {
@@ -40,7 +40,7 @@ export async function getConfig(): Promise<Config> {
 
     const configFile = Bun.file(path.join(CONFIG_DIR, 'config.json'))
     if (!(await configFile.exists())) {
-        config = defaultConfig
+        config = defaultConfig as Config
         await Bun.write(configFile, JSON.stringify(defaultConfig))
     } else {
         config = await configFile.json<Config>()
@@ -52,6 +52,26 @@ export async function getConfig(): Promise<Config> {
     }
 
     return config
+}
+
+export async function getTeam(): Promise<string> {
+    const config = await getConfig()
+
+    if (!config.team) {
+        throw new Error('Team is not configured')
+    }
+
+    return config.team
+}
+
+export async function isTeamConfigured(): Promise<boolean> {
+    const configFile = Bun.file(path.join(CONFIG_DIR, 'config.json'))
+    const fileExists = await configFile.exists()
+
+    if (!fileExists) return false
+
+    const config = await configFile.json<{ team: string | undefined }>()
+    return config.team != null
 }
 
 export async function migrateFromCacheToConfigDir(cacheDir: string, configDir: string): Promise<void> {

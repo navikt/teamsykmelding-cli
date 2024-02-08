@@ -4,6 +4,7 @@ import chalk from 'chalk'
 import { ghGqlQuery, OrgTeamResult } from '../common/octokit.ts'
 import { log } from '../common/log.ts'
 import { authorToColorAvatar } from '../common/format-utils.ts'
+import { getTeam } from '../common/config.ts'
 
 type MemberNodes = {
     members: {
@@ -32,7 +33,7 @@ const reposQuery = /* GraphQL */ `
 `
 
 export async function displayMembers(name: string | null): Promise<void> {
-    const team = name ?? 'teamsykmelding'
+    const team = name ?? (await getTeam())
 
     log(chalk.green(`Getting team members for team ${team}`))
 
