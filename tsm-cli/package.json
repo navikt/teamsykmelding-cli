@@ -3,7 +3,8 @@
   "version": "1.0.2024-02-08-1403",
   "description": "CLI for diverse verktøy for teamsykmelding",
   "bin": {
-    "tsm": "./bin/tsm"
+      "tsm": "./bin/tsm",
+      "tsmx": "./bin/tsm"
   },
   "files": [
     "package.json",

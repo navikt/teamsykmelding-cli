@@ -7,6 +7,12 @@ import { hasNewVersionCached } from './self-updater.ts'
 import { log } from './common/log.ts'
 import { getYargsParser } from './yargs-parser.ts'
 import { isTeamConfigured } from './common/config.ts'
+import { tsmx } from './tsmx.ts'
+
+if (Bun.argv[1].endsWith('tsmx')) {
+    await tsmx()
+    process.exit(0)
+}
 
 if (
     Bun.argv.find((it) => it.includes('update')) == null &&

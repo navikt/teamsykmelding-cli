@@ -5,6 +5,7 @@ import chalk from 'chalk'
 
 import { CACHE_DIR } from './cache.ts'
 import { log } from './log.ts'
+import { updateTeamsCache } from './cache/team.ts'
 
 export const CONFIG_DIR = path.join(Bun.env.HOME ?? '~', '.config', 'tsm')
 
@@ -31,6 +32,8 @@ export async function updateConfig(config: Partial<Config>): Promise<Config> {
 
     const configFile = Bun.file(path.join(CONFIG_DIR, 'config.json'))
     await Bun.write(configFile, JSON.stringify(newConfig))
+
+    await updateTeamsCache(newConfig.team)
 
     return newConfig
 }
