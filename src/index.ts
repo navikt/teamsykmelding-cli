@@ -9,7 +9,7 @@ import { getYargsParser } from './yargs-parser.ts'
 import { isTeamConfigured } from './common/config.ts'
 import { tsmx } from './tsmx.ts'
 
-if (Bun.argv[1].endsWith('tsmx')) {
+if (Bun.argv[2].endsWith('tsmx')) {
     await tsmx()
     process.exit(0)
 }

@@ -4,7 +4,7 @@
   "description": "CLI for diverse verktøy for teamsykmelding",
   "bin": {
     "tsm": "./bin/tsm",
-    "tsmx": "./bin/tsm"
+    "tsmx": "./bin/tsm --tsmx"
   },
   "files": [
     "package.json",
