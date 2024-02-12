@@ -66,6 +66,8 @@ Nå er du klar til å bruke `tsm`!
 
 <!-- COMPUTER SAYS DON'T TOUCH THIS END -->
 
+Du kan også bruke `tsmx` for å interaktivt bytte mellom team, dersom du har satt opp flere team med `tsm config --team=<team>`.
+
 ### Eksempler på bruk:
 
 #### Sjekk at du har satt opp alle verktøy riktig
