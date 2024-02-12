@@ -28,7 +28,7 @@ export async function tsmx(): Promise<void> {
     const teamResponse = await inquirer.prompt<{ team: string }>({
         type: 'list',
         name: 'team',
-        message: 'Select team',
+        message: 'Change team context to',
         choices: teams,
     })
 
