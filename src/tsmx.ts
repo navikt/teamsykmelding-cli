@@ -4,11 +4,14 @@ import { log } from './common/log.ts'
 import { getTeamsCache } from './common/cache/team.ts'
 import inquirer from './common/inquirer.ts'
 import { updateConfig } from './common/config.ts'
+import { updateAnalytics } from './analytics'
 
 /**
  * Interactive team-switcher
  */
 export async function tsmx(): Promise<void> {
+    updateAnalytics(['tsmx'])
+
     const teams = await getTeamsCache()
 
     if (teams.length === 0) {
