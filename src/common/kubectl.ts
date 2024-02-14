@@ -1,8 +1,12 @@
-// TODO don't disable eslint? :D
-/* eslint-disable */
-import inquirer from './inquirer.ts'
+import { $ } from 'bun'
+import chalk from 'chalk'
 
+import inquirer from './inquirer.ts'
+import { log } from './log.ts'
+
+// eslint-disable-next-line
 export function getAllAppNames(pods: any[]): Map<string, any[]> {
+    // eslint-disable-next-line
     const appPodMap = new Map<string, any>()
     pods.forEach((pod) => {
         const appName = pod.metadata.labels.app
@@ -13,6 +17,7 @@ export function getAllAppNames(pods: any[]): Map<string, any[]> {
     return appPodMap
 }
 
+// eslint-disable-next-line
 export async function promptForAppName(appPodMap: Map<string, any>, appname: string | undefined | null) {
     // Convert Map keys into an array of app names
     const appNames: string[] = Array.from(appPodMap.keys())
@@ -35,4 +40,16 @@ export async function promptForAppName(appPodMap: Map<string, any>, appname: str
         appName,
         pod: appPodMap.get(appName),
     }
+}
+
+export async function changeContext(namespace: string, cluster: 'dev-gcp' | 'prod-gcp'): Promise<void> {
+    const clusterOutput = await $`kubectl config use-context ${cluster}`.quiet()
+    const namespaceOutput = await $`kubectl config set-context --current --namespace=${namespace}`.quiet()
+
+    clusterOutput.exitCode === 0
+        ? log(`→ Cluster set to ${chalk.green(cluster)}`)
+        : log(chalk.red(`Failed to set cluster: ${clusterOutput.stderr.toString()}`))
+    namespaceOutput.exitCode === 0
+        ? log(`→ Namespace set to ${chalk.green(namespace)}`)
+        : log(chalk.red(`Failed to set namespace: ${namespaceOutput.stderr.toString()}`))
 }

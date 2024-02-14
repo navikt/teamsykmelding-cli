@@ -5,6 +5,7 @@ import { getTeamsCache } from './common/cache/team.ts'
 import inquirer from './common/inquirer.ts'
 import { updateConfig } from './common/config.ts'
 import { updateAnalytics } from './analytics'
+import { changeContext } from './common/kubectl.ts'
 
 /**
  * Interactive team-switcher
@@ -34,8 +35,16 @@ export async function tsmx(): Promise<void> {
         message: 'Change team context to',
         choices: teams,
     })
+    const clusterResponse = await inquirer.prompt<{ cluster: 'dev-gcp' | 'prod-gcp' }>({
+        type: 'list',
+        name: 'cluster',
+        message: 'Which cluster?',
+        choices: ['dev-gcp', 'prod-gcp'],
+    })
 
+    log('')
     await updateConfig({ team: teamResponse.team })
+    await changeContext(teamResponse.team, clusterResponse.cluster)
 
-    log(chalk.green(`Team set to ${teamResponse.team}`))
+    log(`→ tsm team switched to ${chalk.green(teamResponse.team)}`)
 }
