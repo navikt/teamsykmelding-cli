@@ -109,5 +109,5 @@ async function saveCachedRepos(repos: string[]): Promise<void> {
 
 async function openRepo(repo: string): Promise<void> {
     log(`Opening ${chalk.green(`${repo} on github.com...`)}`)
-    await open(`https://github.com/navikt/${repo}`)
+    await open(`https://github.com/navikt/${repo}`, { wait: true })
 }

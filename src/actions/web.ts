@@ -75,7 +75,7 @@ const appKeys = R.keys.strict(availableApps)
 
 export async function openResource(what: string | null, env: string | null): Promise<void> {
     if (what != null && isPage(what)) {
-        await open(availablePages[what])
+        await open(availablePages[what], { wait: true })
         return
     }
 
@@ -116,7 +116,7 @@ async function openAppOrPage(appOrPage: string): Promise<void> {
     if (!isApp(cleanItem)) {
         const staticPage = availablePages[cleanItem as PageKeys]
 
-        await open(staticPage)
+        await open(staticPage, { wait: true })
         return
     }
 
@@ -130,7 +130,7 @@ async function openApp(app: AppKeys, env: keyof Envs): Promise<void> {
     const url = availableApps[app][env]
 
     log(`Opening ${chalk.blue(url)}...`)
-    await open(url)
+    await open(url, { wait: true })
 }
 
 async function getAppEnv(app: AppKeys): Promise<keyof Envs> {
