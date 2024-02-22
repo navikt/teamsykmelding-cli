@@ -126,9 +126,11 @@ export async function displayCommitsForPeriod(
             continue
         }
 
-        const deduplicatedMessagesInCategory = R.groupBy(
-            orderedCategories[category],
-            (it) => it.commit.message.split('\n')[0],
+        const deduplicatedMessagesInCategory = R.groupBy(orderedCategories[category], (it) =>
+            it.commit.message
+                .split('\n')[0]
+                .replace(/\s*\(#[0-9]+\)/, '')
+                .trim(),
         )
 
         for (const messages of R.values(deduplicatedMessagesInCategory)) {
@@ -137,6 +139,7 @@ export async function displayCommitsForPeriod(
                 .split('\n')[0]
                 .replace(/^(\w+):/, '')
                 .replace(/\[skip\s*-?ci]/, '')
+                .replace(/\s*\(#[0-9]+\)/, '')
                 .trim()
 
             if (messages.length === 1) {
