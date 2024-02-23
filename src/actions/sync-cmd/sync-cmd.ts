@@ -107,6 +107,7 @@ async function runCommand(
 
     if (result.exitCode !== 0) {
         log(chalk.red(`Command failed in ${repo.name}`))
+        log(chalk.red(result.stdout.toString()))
         log(chalk.red(result.stderr.toString()))
 
         if (otherRepos.length === 0) {
@@ -135,6 +136,15 @@ async function runCommand(
             })
             .join('\n'),
     )
+
+    if (diff.changed === 0) {
+        log(chalk.yellow('No changes'))
+        if (otherRepos.length === 0) {
+            return [[repo.name, 'dismissed']]
+        } else {
+            return [[repo.name, 'dismissed'], ...(await runCommand(cmd, force, otherRepos[0], otherRepos.slice(1)))]
+        }
+    }
 
     const confirmResult = force
         ? { confirm: true }
