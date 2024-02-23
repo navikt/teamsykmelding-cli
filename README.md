@@ -51,6 +51,7 @@ Nå er du klar til å bruke `tsm`!
 * `mock` - do stuff with the mock
 * `team` - get all team members
 * `sync-file` - sync a file across specified repos
+* `sync-cmd` - execute a command across multiple repos and stage and commit the changes
 * `primary-branch` - get misc repo metadata
 * `mob` - make a mob commit
 * `config` - set config for tsm

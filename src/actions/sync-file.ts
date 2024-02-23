@@ -4,48 +4,17 @@ import * as R from 'remeda'
 import chalk from 'chalk'
 import { PushResult } from 'simple-git'
 
-import {
-    BaseRepoNode,
-    BaseRepoNodeFragment,
-    ghGqlQuery,
-    OrgTeamRepoResult,
-    removeIgnoredAndArchived,
-} from '../common/octokit.ts'
+import { BaseRepoNode } from '../common/octokit.ts'
 import { log } from '../common/log.ts'
 import { Gitter } from '../common/git.ts'
 import inquirer, { hackilyFixBackToBackPrompt } from '../common/inquirer.ts'
 import { GIT_CACHE_DIR } from '../common/cache.ts'
 import { getTeam } from '../common/config.ts'
-
-const reposQuery = /* GraphQL */ `
-    query ($team: String!) {
-        organization(login: "navikt") {
-            team(slug: $team) {
-                repositories(orderBy: { field: PUSHED_AT, direction: DESC }) {
-                    nodes {
-                        ...BaseRepoNode
-                    }
-                }
-            }
-        }
-    }
-
-    ${BaseRepoNodeFragment}
-`
-
-async function getAllRepos(): Promise<BaseRepoNode<unknown>[]> {
-    const team = await getTeam()
-
-    log(chalk.green(`Querying Github for all active repositories for team ${team}...`))
-
-    const result = await ghGqlQuery<OrgTeamRepoResult<unknown>>(reposQuery, { team })
-
-    return removeIgnoredAndArchived(result.organization.team.repositories.nodes)
-}
+import { getAllRepos } from '../common/repos.ts'
 
 async function cloneAllRepos(): Promise<BaseRepoNode<unknown>[]> {
     const gitter = new Gitter('cache')
-    const repos = await getAllRepos()
+    const repos = await getAllRepos(await getTeam())
     const results = await Promise.all(repos.map((it) => gitter.cloneOrPull(it.name, it.defaultBranchRef.name, true)))
 
     log(

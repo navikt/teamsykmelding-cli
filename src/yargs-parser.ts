@@ -31,6 +31,7 @@ import { showUsageAnalytics } from './analytics/analytics-global.ts'
 import { createSimpleSykmelding } from './actions/mock'
 import { displayCommitsForPeriod } from './actions/work/work.ts'
 import { openRepoWeb } from './actions/gh.ts'
+import { syncCmd } from './actions/sync-cmd/sync-cmd.ts'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
@@ -180,6 +181,29 @@ export const getYargsParser = (argv: string[]): Argv =>
                     describe: 'execute this bash command in all repos and return all repos that give the error code 0',
                 }),
             async (args) => syncFileAcrossRepos(args.query),
+        )
+        .command(
+            'sync-cmd',
+            'execute a command across multiple repos and stage and commit the changes',
+            (yargs) =>
+                yargs
+                    .positional('query', {
+                        type: 'string',
+                        demandOption: true,
+                        describe:
+                            'initial filter cmd to select relevant repos to execute cmd in, e.g. --query="cat package.json" for all node repos',
+                    })
+                    .positional('cmd', {
+                        type: 'string',
+                        demandOption: true,
+                        describe: 'execute this command in all repos',
+                    })
+                    .option('force', {
+                        type: 'boolean',
+                        alias: 'f',
+                        describe: 'auto accept all changes',
+                    }),
+            async (args) => syncCmd(args.query, args.cmd, args.force ?? false),
         )
         .command(
             'primary-branch',
