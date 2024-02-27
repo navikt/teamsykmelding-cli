@@ -1,9 +1,9 @@
 import * as R from 'remeda'
-import open from 'open'
 import chalk from 'chalk'
 
 import inquirer, { hackilyFixBackToBackPrompt } from '../common/inquirer.ts'
 import { log } from '../common/log.ts'
+import { openUrl } from '../common/open-url.ts'
 
 type Envs = {
     dev: string
@@ -75,7 +75,7 @@ const appKeys = R.keys.strict(availableApps)
 
 export async function openResource(what: string | null, env: string | null): Promise<void> {
     if (what != null && isPage(what)) {
-        await open(availablePages[what])
+        await openUrl(availablePages[what])
         return
     }
 
@@ -116,7 +116,7 @@ async function openAppOrPage(appOrPage: string): Promise<void> {
     if (!isApp(cleanItem)) {
         const staticPage = availablePages[cleanItem as PageKeys]
 
-        await open(staticPage, { wait: false })
+        await openUrl(staticPage)
         return
     }
 
@@ -130,7 +130,7 @@ async function openApp(app: AppKeys, env: keyof Envs): Promise<void> {
     const url = availableApps[app][env]
 
     log(`Opening ${chalk.blue(url)}...`)
-    await open(url, { wait: false })
+    await openUrl(url)
 }
 
 async function getAppEnv(app: AppKeys): Promise<keyof Envs> {

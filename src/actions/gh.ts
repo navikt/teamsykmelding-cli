@@ -1,13 +1,13 @@
 import path from 'node:path'
 
 import chalk from 'chalk'
-import open from 'open'
 
 import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult } from '../common/octokit.ts'
 import inquirer from '../common/inquirer.ts'
 import { CACHE_DIR } from '../common/cache.ts'
 import { log, logError } from '../common/log.ts'
 import { getTeam } from '../common/config.ts'
+import { openUrl } from '../common/open-url.ts'
 
 const reposForTeamQuery = /* GraphQL */ `
     query ($team: String!) {
@@ -109,5 +109,5 @@ async function saveCachedRepos(repos: string[]): Promise<void> {
 
 async function openRepo(repo: string): Promise<void> {
     log(`Opening ${chalk.green(`${repo} on github.com...`)}`)
-    await open(`https://github.com/navikt/${repo}`, { wait: false })
+    await openUrl(`https://github.com/navikt/${repo}`)
 }
