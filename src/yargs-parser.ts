@@ -308,9 +308,19 @@ export const getYargsParser = (argv: string[]): Argv =>
         .command('changelog', 'get the latest changes in tsm cli', async () => {
             await reportChangesSinceLast(null)
         })
-        .command('analytics', 'get your own usage stats for tsm cli', async () => {
-            await showUsageAnalytics()
-        })
+        .command(
+            'analytics',
+            'get your own usage stats for tsm cli',
+            (yargs) =>
+                yargs.option('detailed', {
+                    type: 'boolean',
+                    demandOption: false,
+                    alias: 'd',
+                }),
+            async (args) => {
+                await showUsageAnalytics(args.detailed ?? false)
+            },
+        )
         .command(
             'open [project]',
             'open command that opens a project in IntelliJ IDEA',

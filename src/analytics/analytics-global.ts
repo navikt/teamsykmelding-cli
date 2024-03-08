@@ -10,7 +10,7 @@ import { IS_DEV } from '../common/env.ts'
 import { Usage, UserCommandUsage } from './types.ts'
 import { applyDiff } from './diff.ts'
 
-export async function showUsageAnalytics(): Promise<void> {
+export async function showUsageAnalytics(detailed: boolean): Promise<void> {
     const { usage, user } = await loadGlobalAnalytics()
 
     log(`Analytics of ${chalk.blueBright('tsm')} usage for ${chalk.greenBright(user)}:`)
@@ -19,6 +19,7 @@ export async function showUsageAnalytics(): Promise<void> {
         R.toPairs,
         R.sortBy([([, value]) => value.usage, 'desc']),
         R.filter(([, value]) => value.usage > 1),
+        R.take(10),
         R.forEach(([key, value]) => {
             log(`  ${chalk.blueBright(key)}: ${chalk.green(value.usage)}`)
             R.pipe(
@@ -26,7 +27,9 @@ export async function showUsageAnalytics(): Promise<void> {
                 R.toPairs,
                 R.filter(([, value]) => value > 1),
                 R.forEach(([key, value]) => {
-                    log(`    ${chalk.yellow(key)}: ${chalk.green(value)}`)
+                    if (detailed) {
+                        log(`    ${chalk.yellow(key)}: ${chalk.green(value)}`)
+                    }
                 }),
             )
         }),
