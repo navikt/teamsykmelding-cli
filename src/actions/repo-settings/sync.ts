@@ -23,14 +23,18 @@ export async function syncRepoSettings(): Promise<void> {
         const wrongTuples = await checkSettingsOK(team, repo.name)
 
         if (wrongTuples.length === 0) {
-            log(`${chalk.blue(repo.name)} is ${chalk.green('OK')}!`)
+            log(`${chalk.green('OK')} - ${chalk.blue(repo.name)}`)
         } else {
             log(`${chalk.blue(repo.name)} has the following wrong settings:`)
             log(wrongTuples.map(([setting, value]) => `  - ${chalk.yellow(setting)}: ${chalk.red(value)}`).join('\n'))
 
             logNoNewLine(chalk.yellow('Applying settings...'))
-            await applySettings(team, repo.name)
-            log(chalk.green(' OK!'))
+            try {
+                await applySettings(team, repo.name)
+                log(chalk.green(' OK!'))
+            } catch (e) {
+                log(chalk.red(' FAILED! :('))
+            }
         }
 
         // Don't rate limit our selves
@@ -81,6 +85,6 @@ async function applySettings(team: string, repo: string): Promise<void> {
     await octokit.request('PATCH /repos/{owner}/{repo}', {
         owner: 'navikt',
         repo: repo,
-        ...EXPECTED_REPO_SETTINGS,
+        ...R.omit(EXPECTED_REPO_SETTINGS, ['default_branch']),
     })
 }
