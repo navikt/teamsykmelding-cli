@@ -3,6 +3,10 @@ import chalk, { backgroundColorNames, foregroundColorNames } from 'chalk'
 // eslint-disable-next-line no-console
 export const log = console.log
 
+export const logNoNewLine = (message: string): void => {
+    process.stdout.write(message)
+}
+
 // eslint-disable-next-line no-console
 export const logError = console.error
 

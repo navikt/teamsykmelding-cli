@@ -32,6 +32,7 @@ import { createSimpleSykmelding } from './actions/mock'
 import { displayCommitsForPeriod } from './actions/work/work.ts'
 import { openRepoWeb } from './actions/gh.ts'
 import { syncCmd } from './actions/sync-cmd/sync-cmd.ts'
+import { syncRepoSettings } from './actions/repo-settings/sync.ts'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
@@ -69,12 +70,26 @@ export const getYargsParser = (argv: string[]): Argv =>
             'repos',
             'get all repos',
             (yargs) =>
-                yargs.positional('query', {
-                    type: 'string',
-                    demandOption: false,
-                    describe: 'execute this bash command in all repos and return all repos that give the error code 0',
-                }),
-            async (args) => (args.query ? queryForRelevantRepos(args.query) : getRepos()),
+                yargs
+                    .positional('query', {
+                        type: 'string',
+                        demandOption: false,
+                        describe:
+                            'execute this bash command in all repos and return all repos that give the error code 0',
+                    })
+                    .option('sync-settings', {
+                        type: 'boolean',
+                        conflicts: 'query',
+                        describe:
+                            'sync all repository settings across this teams repositories, e.g. merge settings etc.',
+                    }),
+            async (args) => {
+                if (args.syncSettings) {
+                    return syncRepoSettings()
+                }
+
+                return args.query ? queryForRelevantRepos(args.query) : getRepos()
+            },
         )
         .command(
             'git',
