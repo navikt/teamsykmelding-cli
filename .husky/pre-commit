@@ -1,6 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 bun run lint-staged
 bun run scripts/update-readme.ts
 git add README.md
