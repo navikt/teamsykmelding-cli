@@ -94,7 +94,7 @@ async function loadCachedRepos(): Promise<string[]> {
         const cachedRepos = Bun.file(path.join(CACHE_DIR, `repos-${team}.json`))
         if (!(await cachedRepos.exists())) return []
 
-        return await cachedRepos.json<string[]>()
+        return await cachedRepos.json()
     } catch (e) {
         logError('Error loading cached repos', e)
         return []

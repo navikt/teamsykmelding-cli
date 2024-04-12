@@ -59,7 +59,7 @@ async function getCachedCoAuthors(): Promise<Author[] | []> {
     const coAuthorsFile = Bun.file(path.join(CACHE_DIR, 'co-authors.json'))
 
     if (await coAuthorsFile.exists()) {
-        return coAuthorsFile.json<Author[]>()
+        return coAuthorsFile.json()
     }
 
     return []

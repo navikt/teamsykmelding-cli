@@ -46,7 +46,7 @@ export async function getConfig(): Promise<Config> {
         config = defaultConfig as Config
         await Bun.write(configFile, JSON.stringify(defaultConfig))
     } else {
-        config = await configFile.json<Config>()
+        config = await configFile.json()
     }
 
     if (!config.ide) {
@@ -73,7 +73,7 @@ export async function isTeamConfigured(): Promise<boolean> {
 
     if (!fileExists) return false
 
-    const config = await configFile.json<{ team: string | undefined }>()
+    const config: { team: string | undefined } = await configFile.json()
     return config.team != null
 }
 
@@ -82,7 +82,7 @@ export async function migrateFromCacheToConfigDir(cacheDir: string, configDir: s
     const cacheConfigFile = Bun.file(configInCacheDir)
     if (await cacheConfigFile.exists()) {
         log(chalk.blue('\n...Found config in cache dir, migrating to config dir. This is a one-time-thing. :)\n'))
-        const cacheConfigContent = await cacheConfigFile.json<Config>()
+        const cacheConfigContent: Config = await cacheConfigFile.json()
         const newConfigFile = Bun.file(path.join(configDir, 'config.json'))
         await Bun.write(newConfigFile, JSON.stringify(cacheConfigContent))
         fs.unlinkSync(configInCacheDir)

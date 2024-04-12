@@ -21,5 +21,5 @@ export async function getTeamsCache(): Promise<string[]> {
         return []
     }
 
-    return file.json<string[]>()
+    return file.json()
 }

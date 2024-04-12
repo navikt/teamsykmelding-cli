@@ -47,7 +47,7 @@ async function loadGlobalAnalytics(): Promise<UserCommandUsage> {
     const cachedAnalytics = Bun.file(path.join(CONFIG_DIR, `analytics${IS_DEV ? '-dev' : ''}.json`))
     if (!(await cachedAnalytics.exists())) return { user: Bun.env.USER ?? 'unknown', usage: {} }
 
-    return await cachedAnalytics.json<UserCommandUsage>()
+    return await cachedAnalytics.json()
 }
 
 async function saveGlobalAnalytics(updated: UserCommandUsage): Promise<void> {
