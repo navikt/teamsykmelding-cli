@@ -43,7 +43,11 @@ export async function getRepos(): Promise<void> {
         team,
     })
 
-    log(`\nFound ${chalk.green(queryResult.organization.team.repositories.nodes.length)} repos:\n`)
+    log(
+        `\nFound ${chalk.green(
+            removeIgnoredAndArchived(queryResult.organization.team.repositories.nodes).length,
+        )} repos:\n`,
+    )
 
     const reposByLang = R.pipe(
         queryResult.organization.team.repositories.nodes,

@@ -33,6 +33,7 @@ import { displayCommitsForPeriod } from './actions/work/work.ts'
 import { openRepoWeb } from './actions/gh.ts'
 import { syncCmd } from './actions/sync-cmd/sync-cmd.ts'
 import { syncRepoSettings } from './actions/repo-settings/sync.ts'
+import { checkBuilds } from './actions/builds/builds.ts'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
@@ -91,6 +92,9 @@ export const getYargsParser = (argv: string[]): Argv =>
                 return args.query ? queryForRelevantRepos(args.query) : getRepos()
             },
         )
+        .command('builds', 'checks all repos for failing builds (on main)', async () => {
+            await checkBuilds()
+        })
         .command(
             'git',
             'keep our repos in sync, ex: tsm git sync',
