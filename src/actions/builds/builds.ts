@@ -123,6 +123,17 @@ export async function checkBuilds(): Promise<void> {
     if (Object.keys(rest).length > 0) {
         const categoryPairs = Object.entries(rest)
         const categories = categoryPairs.map(([key, value]) => `${key}: ${value.length}`)
-        log(chalk.yellow(`\tOthers states: ${categories.join(', ')}`))
+        log(chalk.yellow(`  Others states: ${categories.join(', ')}`))
+        for (const [key, value] of categoryPairs) {
+            for (const repo of value) {
+                log(
+                    `    ${key}: ` +
+                        chalk.yellow(`${repo.name}`) +
+                        `: https://github.com/navikt/${repo.name}/actions?query=branch%3A${
+                            repo.action?.branch.name ?? 'main'
+                        }`,
+                )
+            }
+        }
     }
 }
