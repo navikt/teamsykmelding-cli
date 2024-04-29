@@ -1,5 +1,4 @@
 import { Octokit } from 'octokit'
-import { GraphQlResponse } from '@octokit/graphql/dist-types/types'
 import chalk from 'chalk'
 import * as R from 'remeda'
 
@@ -42,7 +41,7 @@ function getGithubCliToken(): string {
     return data
 }
 
-export type GraphQLResponse<Data> = GraphQlResponse<Data>
+export type GraphQLResponse<Data> = Promise<Data>
 
 export const BaseRepoNodeFragment = /* GraphQL */ `
     fragment BaseRepoNode on Repository {
