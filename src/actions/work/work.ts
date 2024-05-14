@@ -21,7 +21,7 @@ type CommitsInRangeNode = {
                         user: {
                             name: string
                             login: string
-                        }
+                        } | null
                     }
                 }[]
             }
@@ -102,10 +102,10 @@ export async function displayCommitsForPeriod(
             ...commit,
             type: classifyCommit(commit.commit),
         })),
-        (it) => {
-            if (author == null) return it
+        (classifiedCommit) => {
+            if (author == null) return classifiedCommit
 
-            return R.filter(it, (it) => it.commit.author.user.login === author)
+            return R.filter(classifiedCommit, (commit) => commit.commit.author.user?.login === author)
         },
         R.groupBy((it) => it.type),
     )
@@ -159,8 +159,8 @@ export async function displayCommitsForPeriod(
 
             log(
                 `  ${cleanMessage} in ${chalk.green(commit.repo)} (by ${
-                    commit.commit.author.user.login
-                } ${authorToColorAvatar(commit.commit.author.user.login)})`,
+                    commit.commit.author.user?.login ?? commit.commit.author.name
+                } ${authorToColorAvatar(commit.commit.author.user?.login ?? commit.commit.author.name)})`,
             )
         }
     }
@@ -173,7 +173,7 @@ export async function displayCommitsForPeriod(
 
 function classifyCommit(commit: {
     message: string
-    author: { date: string; email: string; name: string; user: { name: string; login: string } }
+    author: { date: string; email: string; name: string; user: { name: string; login: string } | null }
 }): string {
     switch (true) {
         case /^Merge pull request.*dependabot/g.test(commit.message):
