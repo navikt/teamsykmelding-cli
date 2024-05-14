@@ -1,6 +1,9 @@
 {
     "name": "teamsykmelding-cli",
     "type": "module",
+    "workspaces": [
+        "tsm-app"
+    ],
     "scripts": {
         "tsc": "bun x tsc",
         "lint": "bun x eslint src/**/*.ts",
