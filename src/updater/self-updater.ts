@@ -22,7 +22,7 @@ export async function hasNewVersion(): Promise<string | null> {
 }
 
 export async function updateToNewestVersion(): Promise<void> {
-    const newVersion = hasNewVersion()
+    const newVersion = await hasNewVersion()
     if (newVersion != null) {
         log(`Updating to ${chalk.green(newVersion)}...`)
         const updateSub = Bun.spawnSync('npm i -g @navikt/teamsykmelding-cli'.split(' '))
