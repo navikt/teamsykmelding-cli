@@ -23,7 +23,8 @@ if (
     // Only spawn a background version check all other args, or else we get a infinite loop of spawns
     checkForNewVersion(true)
 
-    if (Bun.argv.find((it) => it === 'upgrade') == null) {
+    const isUpgradeCommand = Bun.argv.find((it) => it === 'upgrade') != null
+    if (!isUpgradeCommand) {
         // Check cache and notify if there is a new version
         const newVersion = await hasNewVersionCached()
         if (newVersion) {

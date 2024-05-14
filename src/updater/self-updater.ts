@@ -4,21 +4,35 @@ import * as fs from 'node:fs'
 import * as R from 'remeda'
 import { parse } from 'semver'
 import chalk from 'chalk'
-import { $ } from 'bun'
 
 import packageJson from '../../tsm-cli/package.json'
 import { log, logError } from '../common/log.ts'
 import { CACHE_DIR } from '../common/cache.ts'
+import { getOctokitClient } from '../common/octokit.ts'
 
 export async function hasNewVersion(): Promise<string | null> {
-    const res = await $`npm view @navikt/teamsykmelding-cli@latest versions --json`.quiet()
-    const result = JSON.parse(res.stdout.toString()).at(-1)
+    const response = await getOctokitClient('package').request(
+        'GET /orgs/{owner}/packages/{package_type}/{package_name}/versions',
+        {
+            owner: 'navikt',
+            package_type: 'npm',
+            package_name: 'teamsykmelding-cli',
+        },
+    )
 
-    if (!parse(result)) {
-        throw new Error(`Could not parse version ${result}`)
+    const version =
+        R.pipe(
+            response.data,
+            R.sortBy([(it: { name: string; updated_at: string }) => it.updated_at, 'desc']),
+            R.map((it) => it.name),
+            R.first(),
+        ) ?? null
+
+    if (!parse(version)) {
+        throw new Error(`Could not parse version ${version}`)
     }
 
-    return result !== packageJson.version ? result : null
+    return version !== packageJson.version ? version : null
 }
 
 export async function updateToNewestVersion(): Promise<void> {
