@@ -5,13 +5,28 @@ import * as R from 'remeda'
 import { log } from './log.ts'
 import { blacklisted } from './repos.ts'
 
-let octokit: Octokit | null = null
-export function getOctokitClient(auth: 'cli' | 'package' = 'cli'): Octokit {
-    if (octokit === null) {
-        octokit = new Octokit({ auth: auth === 'cli' ? getGithubCliToken() : Bun.env.NPM_AUTH_TOKEN })
-    }
+let packagesOctokit: Octokit | null = null
+let cliOctokit: Octokit | null = null
 
-    return octokit
+export function getOctokitClient(auth: 'cli' | 'package' = 'cli'): Octokit {
+    switch (auth) {
+        case 'cli':
+            if (cliOctokit === null) {
+                cliOctokit = new Octokit({ auth: getGithubCliToken() })
+            }
+
+            return cliOctokit
+        case 'package':
+            if (Bun.env.NPM_AUTH_TOKEN == null) {
+                throw new Error('No NPM_AUTH_TOKEN set')
+            }
+
+            if (packagesOctokit === null) {
+                packagesOctokit = new Octokit({ auth: Bun.env.NPM_AUTH_TOKEN })
+            }
+
+            return packagesOctokit
+    }
 }
 
 /**
