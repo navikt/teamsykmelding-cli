@@ -4,15 +4,15 @@ import * as fs from 'node:fs'
 import * as R from 'remeda'
 import { parse } from 'semver'
 import chalk from 'chalk'
+import { $ } from 'bun'
 
-import packageJson from '../tsm-cli/package.json'
+import packageJson from '../../tsm-cli/package.json'
+import { log, logError } from '../common/log.ts'
+import { CACHE_DIR } from '../common/cache.ts'
 
-import { log, logError } from './common/log.ts'
-import { CACHE_DIR } from './common/cache.ts'
-
-export function hasNewVersion(): string | null {
-    const sub = Bun.spawnSync('npm view @navikt/teamsykmelding-cli@latest versions --json'.split(' '))
-    const result = JSON.parse(sub.stdout.toString()).at(-1)
+export async function hasNewVersion(): Promise<string | null> {
+    const res = await $`npm view @navikt/teamsykmelding-cli@latest versions --json`.quiet()
+    const result = JSON.parse(res.stdout.toString()).at(-1)
 
     if (!parse(result)) {
         throw new Error(`Could not parse version ${result}`)
@@ -93,20 +93,16 @@ export async function hasNewVersionCached(): Promise<string | null> {
     return file?.newVersion !== packageJson.version ? file.newVersion : null
 }
 
-export async function writeNewVersionCache(version: string): Promise<void> {
+export async function writeNewVersionCache(version: string | null): Promise<void> {
     fs.mkdirSync(CACHE_DIR, { recursive: true })
     await Bun.write(path.join(CACHE_DIR, 'metadata.json'), JSON.stringify({ newVersion: version }))
 }
 
-export async function unsetNewVersionCache(): Promise<void> {
-    fs.rmSync(path.join(CACHE_DIR, 'metadata.json'))
-}
-
 if (Bun.argv.find((it) => it.includes('self-updater.ts'))) {
-    const newVersion = hasNewVersion()
+    const newVersion = await hasNewVersion()
     if (newVersion != null) {
         await writeNewVersionCache(newVersion)
     } else {
-        await unsetNewVersionCache()
+        await writeNewVersionCache(null)
     }
 }

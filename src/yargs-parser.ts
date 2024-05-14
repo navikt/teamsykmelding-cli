@@ -6,8 +6,6 @@ import chalk from 'chalk'
 import { differenceInDays, isValid, parseISO, startOfWeek, sub } from 'date-fns'
 import { nb } from 'date-fns/locale'
 
-import packageJson from '../tsm-cli/package.json'
-
 import { checkTooling } from './actions/check.ts'
 import { auth } from './actions/auth.ts'
 import { lastCommits } from './actions/last-commits.ts'
@@ -21,7 +19,7 @@ import { displayMembers } from './actions/team.ts'
 import { syncFileAcrossRepos } from './actions/sync-file.ts'
 import { getRepoMainBranch } from './actions/repo-metadata.ts'
 import { coAuthors } from './actions/co-authors.ts'
-import { hasNewVersion, reportChangesSinceLast, updateToNewestVersion, writeNewVersionCache } from './self-updater.ts'
+import { reportChangesSinceLast, updateToNewestVersion } from './updater/self-updater.ts'
 import { open } from './actions/open.ts'
 import { openResource } from './actions/web.ts'
 import { cleanup, kafkaConfig } from './actions/kafka.ts'
@@ -306,23 +304,6 @@ export const getYargsParser = (argv: string[]): Argv =>
             'update the cli',
             (yargs) => yargs,
             async () => updateToNewestVersion(),
-        )
-        .command(
-            'update',
-            'see if there is a new version for this cli',
-            (yargs) => yargs,
-            async () => {
-                const newVersion = hasNewVersion()
-                if (newVersion != null) {
-                    await writeNewVersionCache(newVersion)
-                    log(`New version available! ${chalk.yellow(packageJson.version)} -> ${chalk.green(newVersion)}`)
-                    log(`Run ${chalk.cyan('tsm upgrade')} to upgrade`)
-
-                    reportChangesSinceLast(packageJson.version)
-                } else {
-                    log(chalk.green(`You are on the latest version!`))
-                }
-            },
         )
         .command('changelog', 'get the latest changes in tsm cli', async () => {
             await reportChangesSinceLast(null)

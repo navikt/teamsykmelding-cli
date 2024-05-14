@@ -57,7 +57,6 @@ Nå er du klar til å bruke `tsm`!
 * `mob` - make a mob commit
 * `config` - set config for tsm
 * `upgrade` - update the cli
-* `update` - see if there is a new version for this cli
 * `changelog` - get the latest changes in tsm cli
 * `analytics` - get your own usage stats for tsm cli
 * `open` - open command that opens a project in IntelliJ IDEA
