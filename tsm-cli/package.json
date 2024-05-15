@@ -1,14 +1,17 @@
 {
-  "name": "@navikt/teamsykmelding-cli",
-  "version": "1.0.2024-05-14-1352",
-  "description": "CLI for diverse verktøy for teamsykmelding",
-  "bin": {
-    "tsm": "./bin/tsm",
-    "tsmx": "./bin/tsmx"
-  },
-  "files": [
-    "package.json",
-    "bin/tsm",
-    "bin/tsmx"
-  ]
+    "name": "@navikt/teamsykmelding-cli",
+    "version": "1.0.2024-05-14-1352",
+    "description": "CLI for diverse verktøy for teamsykmelding",
+    "dependencies": {
+        "yoga-wasm-web": "^0.3.3"
+    },
+    "bin": {
+        "tsm": "./bin/tsm",
+        "tsmx": "./bin/tsmx"
+    },
+    "files": [
+        "package.json",
+        "bin/tsm",
+        "bin/tsmx"
+    ]
 }

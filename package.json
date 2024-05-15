@@ -16,10 +16,12 @@
         "chalk": "^5.3.0",
         "date-fns": "^3.6.0",
         "fs-extra": "^11.2.0",
+        "ink": "^5.0.0",
         "inquirer": "^9.2.21",
         "inquirer-autocomplete-prompt": "^3.0.1",
         "octokit": "^3.2.0",
         "open": "^10.1.0",
+        "react": "^18.3.1",
         "remeda": "^1.61.0",
         "simple-git": "^3.24.0",
         "yargs": "^17.7.2"
@@ -36,6 +38,7 @@
         "husky": "^9.0.11",
         "lint-staged": "^15.2.2",
         "prettier": "^3.2.5",
+        "react-devtools-core": "^5.2.0",
         "rimraf": "^5.0.7",
         "semver": "^7.6.2"
     },
