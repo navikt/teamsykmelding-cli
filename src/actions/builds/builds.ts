@@ -73,7 +73,11 @@ const reposQuery = /* GraphQL */ `
 
 export async function checkBuilds(rerunFailed: boolean): Promise<void> {
     const team = await getTeam()
-    log(chalk.green(`Checking build status for all ${team} repos... ${rerunFailed && '(will rerun failed)'} \t`))
+    log(
+        chalk.green(
+            `Checking build status for all ${team} repos... ${rerunFailed ? '(will rerun failed)' : undefined} \t`,
+        ),
+    )
 
     const queryResult = await ghGqlQuery<OrgTeamRepoResult<BranchRefNode>>(reposQuery, {
         team,
