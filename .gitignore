@@ -173,3 +173,4 @@ dist
 
 # project
 tsconfig.tsbuildinfo
+debug.json

@@ -90,13 +90,29 @@ export async function checkBuilds(): Promise<void> {
             ),
         })),
         R.filter((it) => it.action?.workflowRun != null),
-        R.groupBy((it) => it.action?.conclusion ?? 'unknown'),
+        R.groupBy((it) => {
+            if (it.action?.status === 'IN_PROGRESS') return 'BUILDING'
+
+            return it.action?.conclusion ?? 'unknown'
+        }),
     )
 
-    const { SUCCESS, FAILURE, CANCELLED, ...rest } = reposByState
+    const { SUCCESS, FAILURE, CANCELLED, BUILDING, ...rest } = reposByState
 
     log(`Found ${R.pipe(reposByState, R.toPairs, R.flatMap(R.last), R.length)} repos with build status`)
     log(chalk.green(`  Success: ${SUCCESS?.length ?? 0} repos`))
+    log(chalk.yellow(`  Bulding: ${BUILDING?.length ?? 0} repos`))
+    for (const repo of BUILDING ?? []) {
+        if (repo.action?.workflowRun?.updatedAt == null) {
+            log(chalk.yellow(`   ${repo.name} doesn't have a timestamp`))
+            continue
+        }
+        log(
+            chalk.yellow(
+                `   ${repo.name} started building ${coloredTimestamp(parseISO(repo.action.workflowRun.updatedAt))} ago`,
+            ),
+        )
+    }
     log(chalk.red(`  Failure: ${FAILURE?.length ?? 0}`))
     for (const repo of FAILURE ?? []) {
         log(
@@ -112,12 +128,15 @@ export async function checkBuilds(): Promise<void> {
                 }`,
         )
     }
-    log(chalk.blue(`  Cancelled: ${CANCELLED?.length ?? 0}`))
-    for (const repo of CANCELLED ?? []) {
-        log(
-            chalk.blue(`   ${repo.name}`) +
-                `: https://github.com/navikt/${repo.name}/actions?query=branch%3A${repo.action?.branch.name ?? 'main'}`,
-        )
+
+    if ((CANCELLED?.length ?? 0) > 0) {
+        log(chalk.blue(`  Cancelled: ${CANCELLED.length}`))
+        for (const repo of CANCELLED) {
+            log(
+                chalk.blue(`   ${repo.name}`) +
+                    `: https://github.com/navikt/${repo.name}/actions?query=branch%3A${repo.action?.branch.name ?? 'main'}`,
+            )
+        }
     }
 
     if (Object.keys(rest).length > 0) {
