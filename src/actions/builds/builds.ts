@@ -136,8 +136,14 @@ export async function checkBuilds(rerunFailed: boolean): Promise<void> {
             if (repo.action?.workflowRun?.databaseId == null) {
                 log(chalk.red(`        ${repo.name} doesn't have an action id`))
             } else {
-                await $`gh run rerun -R navikt/${repo.name} ${repo.action.workflowRun.databaseId}`.throws(true)
-                log(chalk.green(` OK!`))
+                try {
+                    await $`gh run rerun -R navikt/${repo.name} ${repo.action.workflowRun.databaseId}`
+                        .quiet()
+                        .throws(true)
+                    log(chalk.green(` OK!`))
+                } catch (e) {
+                    log(chalk.red(` Unable to rerun :( cause ${e}`))
+                }
             }
         }
     }
