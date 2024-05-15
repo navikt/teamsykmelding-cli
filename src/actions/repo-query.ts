@@ -1,5 +1,6 @@
 import * as R from 'remeda'
 import chalk from 'chalk'
+import { $ } from 'bun'
 
 import {
     BaseRepoNode,
@@ -55,10 +56,8 @@ async function cloneAllRepos(): Promise<BaseRepoNode<unknown>[]> {
     return repos
 }
 
-function queryRepo(query: string, repo: string): boolean {
-    const result = Bun.spawnSync(query.split(' '), {
-        cwd: `${GIT_CACHE_DIR}/${repo}`,
-    })
+async function queryRepo(query: string, repo: string): Promise<boolean> {
+    const result = await $`${{ raw: query }}`.cwd(`${GIT_CACHE_DIR}/${repo}`).quiet().throws(false)
 
     return result.exitCode === 0
 }
@@ -71,8 +70,7 @@ export async function queryForRelevantRepos(query: string): Promise<void> {
     }
 
     const relevantRepos = R.pipe(
-        repos,
-        R.map((it) => [it, queryRepo(query, it.name)] as const),
+        await Promise.all(repos.map(async (it) => [it, await queryRepo(query, it.name)] as const)),
         R.filter(([, result]) => result),
         R.map(([name]) => name),
     )
