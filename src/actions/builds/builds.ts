@@ -1,8 +1,9 @@
 import chalk from 'chalk'
 import * as R from 'remeda'
 import { parseISO } from 'date-fns'
+import { $ } from 'bun'
 
-import { log } from '../../common/log.ts'
+import { log, logNoNewLine } from '../../common/log.ts'
 import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../../common/octokit.ts'
 import { getTeam } from '../../common/config.ts'
 import { coloredTimestamp } from '../../common/date-utils.ts'
@@ -11,6 +12,7 @@ type CheckSuite = {
     status: string
     conclusion: string
     workflowRun: {
+        databaseId: string
         event: string
         runNumber: number
         updatedAt: string
@@ -47,6 +49,7 @@ const reposQuery = /* GraphQL */ `
                                             status
                                             conclusion
                                             workflowRun {
+                                                databaseId
                                                 event
                                                 runNumber
                                                 updatedAt
@@ -68,9 +71,9 @@ const reposQuery = /* GraphQL */ `
     ${BaseRepoNodeFragment}
 `
 
-export async function checkBuilds(): Promise<void> {
+export async function checkBuilds(rerunFailed: boolean): Promise<void> {
     const team = await getTeam()
-    log(chalk.green(`Checking build status for all ${team} repos... \t`))
+    log(chalk.green(`Checking build status for all ${team} repos... ${rerunFailed && '(will rerun failed)'} \t`))
 
     const queryResult = await ghGqlQuery<OrgTeamRepoResult<BranchRefNode>>(reposQuery, {
         team,
@@ -127,6 +130,16 @@ export async function checkBuilds(): Promise<void> {
                     repo.action?.branch.name ?? 'main'
                 }`,
         )
+
+        if (rerunFailed) {
+            logNoNewLine(chalk.yellow(`        Rerunning failed build... →`))
+            if (repo.action?.workflowRun?.databaseId == null) {
+                log(chalk.red(`        ${repo.name} doesn't have an action id`))
+            } else {
+                await $`gh run rerun -R navikt/${repo.name} ${repo.action.workflowRun.databaseId}`.throws(true)
+                log(chalk.green(` OK!`))
+            }
+        }
     }
 
     if ((CANCELLED?.length ?? 0) > 0) {

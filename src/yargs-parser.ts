@@ -90,9 +90,19 @@ export const getYargsParser = (argv: string[]): Argv =>
                 return args.query ? queryForRelevantRepos(args.query) : getRepos()
             },
         )
-        .command('builds', 'checks all repos for failing builds (on main)', async () => {
-            await checkBuilds()
-        })
+        .command(
+            'builds',
+            'checks all repos for failing builds (on main)',
+            (yargs) =>
+                yargs.option('rerun-failed', {
+                    type: 'boolean',
+                    demandOption: false,
+                    default: false,
+                }),
+            async (args) => {
+                await checkBuilds(args.rerunFailed)
+            },
+        )
         .command(
             'git',
             'keep our repos in sync, ex: tsm git sync',
