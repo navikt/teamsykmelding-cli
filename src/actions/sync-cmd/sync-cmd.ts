@@ -53,7 +53,7 @@ export async function syncCmd(query: string | undefined, cmd: string | undefined
 }
 
 async function queryRepo(query: string, repo: string): Promise<boolean> {
-    const result = await $`${{ raw: query }}`.cwd(`${GIT_CACHE_DIR}/${repo}`).quiet()
+    const result = await $`${{ raw: query }}`.cwd(`${GIT_CACHE_DIR}/${repo}`).quiet().throws(false)
 
     return result.exitCode === 0
 }
