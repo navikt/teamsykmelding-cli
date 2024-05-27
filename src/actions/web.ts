@@ -21,7 +21,7 @@ const hiddenPages = {
 
 const staticPages = {
     mock: 'https://teamsykmelding-mock.intern.dev.nav.no/',
-    docs: 'https://teamsykmelding.intern.nav.no/',
+    docs: 'https://teamsykmelding.ansatt.nav.no/',
     unleash: 'https://teamsykmelding-unleash-web.nav.cloud.nais.io/',
     ida: 'https://ida.intern.nav.no/',
     flexjar: 'https://flexjar.intern.nav.no/',
