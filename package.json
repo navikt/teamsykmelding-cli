@@ -20,7 +20,7 @@
         "inquirer-autocomplete-prompt": "^3.0.1",
         "octokit": "^3.2.0",
         "open": "^10.1.0",
-        "remeda": "^1.61.0",
+        "remeda": "^2.0.0",
         "simple-git": "^3.24.0",
         "yargs": "^17.7.2"
     },
