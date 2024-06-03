@@ -21,10 +21,12 @@ const authorOptions: Author[] = [
 
 export async function promptForCoAuthors(): Promise<Author[]> {
     const previouslyUsedCoAuthors = await getCachedCoAuthors()
+    const bonusCoAuthors = await getBonusCoAuthors()
+    const combinedAuthorOptions = [...authorOptions, ...bonusCoAuthors]
 
     const selectedAuthors = await inquirer.prompt({
         type: 'checkbox',
-        choices: authorOptions
+        choices: combinedAuthorOptions
             .filter(([, , user]) => Bun.env.USER !== user)
             .map(([name, email, user]) => ({
                 name: `${name.split(' ')[0]}`,
@@ -55,11 +57,21 @@ async function cacheCoAuthors(authors: Author[]): Promise<void> {
     await Bun.write(coAuthorsFile, JSON.stringify(authors))
 }
 
-async function getCachedCoAuthors(): Promise<Author[] | []> {
+async function getCachedCoAuthors(): Promise<Author[]> {
     const coAuthorsFile = Bun.file(path.join(CACHE_DIR, 'co-authors.json'))
 
     if (await coAuthorsFile.exists()) {
         return coAuthorsFile.json()
+    }
+
+    return []
+}
+
+async function getBonusCoAuthors(): Promise<Author[]> {
+    const bonusCoAuthorsFile = Bun.file(path.join(CACHE_DIR, 'bonus-co-authors.json'))
+
+    if (await bonusCoAuthorsFile.exists()) {
+        return bonusCoAuthorsFile.json()
     }
 
     return []
