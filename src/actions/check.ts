@@ -56,7 +56,7 @@ export async function checkTooling(): Promise<void> {
         R.filter(R.isTruthy),
     )
 
-    if (badBrew) {
+    if (badBrew.length) {
         log(`\nThe following CLIs are installed with ${chalk.red('brew')} and shouldn't be:`)
         log(
             chalk.red(
