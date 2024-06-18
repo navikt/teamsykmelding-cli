@@ -41,7 +41,7 @@ Nå er du klar til å bruke `tsm`!
 
 <!-- COMPUTER SAYS DON'T TOUCH THIS START -->
 
-* `check` - check that all tooling looks OK
+* `doctor` - check that all tooling and such looks OK
 * `auth` - login to gcloud
 * `commits` - get the last commits for every repo in the team
 * `prs` - get all open pull requests

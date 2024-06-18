@@ -6,7 +6,7 @@ import chalk from 'chalk'
 import { differenceInDays, isValid, parseISO, startOfWeek, sub } from 'date-fns'
 import { nb } from 'date-fns/locale'
 
-import { checkTooling } from './actions/check.ts'
+import { runDoctor } from './actions/doctor/doctor.ts'
 import { auth } from './actions/auth.ts'
 import { lastCommits } from './actions/last-commits.ts'
 import { openPrs } from './actions/prs.ts'
@@ -36,7 +36,13 @@ import { checkBuilds } from './actions/builds/builds.ts'
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
         .scriptName('tsm')
-        .command('check', 'check that all tooling looks OK', checkTooling)
+        .command({
+            command: 'doctor',
+            describe: 'check that all tooling and such looks OK',
+            aliases: ['doc', 'check'],
+            handler: runDoctor,
+        })
+        .alias('doctor', 'doc')
         .command('auth', 'login to gcloud', auth)
         .command(
             'commits',
