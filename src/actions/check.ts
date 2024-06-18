@@ -8,10 +8,11 @@ const REQUIRED_CLI = ['gh', 'yarn', 'kubectl', 'nais', 'gcloud'] as const
 const CLI_CHECKS: [cli: (typeof REQUIRED_CLI)[number], check: () => Promise<string | null>][] = [
     ['gh', checkGithubCli],
     ['kubectl', checkKubectl],
-    ['yarn', () => defaultExistsCheck('yarn', $`yarn --version`)],
     ['nais', () => defaultExistsCheck('nais', $`nais --version`)],
     ['gcloud', () => defaultExistsCheck('gcloud', $`gcloud --version`)],
 ]
+
+const BREW_CHECKS = ['java', 'npm', 'yarn', 'node']
 
 export async function checkTooling(): Promise<void> {
     log(chalk.blueBright('Checking tools...'))
@@ -35,6 +36,36 @@ export async function checkTooling(): Promise<void> {
     if (ok.length) {
         log(chalk.green(`The following CLIs are good!`))
         log(chalk.red(ok.map(([cli]) => ` ${chalk.green('✓')} ${chalk.white(cli)}`).join('\n')))
+    }
+
+    const brewChecks = await Promise.allSettled(
+        BREW_CHECKS.map(async (it) => {
+            const output = await $`which ${it}`.throws(false).quiet()
+
+            // Probably not installed
+            if (output.exitCode !== 0) return null
+
+            const isBrew = output.stdout.toString().includes('brew')
+            return isBrew ? it : null
+        }),
+    )
+    const badBrew = R.pipe(
+        brewChecks,
+        R.filter((it): it is PromiseFulfilledResult<string> => it.status === 'fulfilled'),
+        R.map((it) => it.value),
+        R.filter(R.isTruthy),
+    )
+
+    if (badBrew) {
+        log(`\nThe following CLIs are installed with ${chalk.red('brew')} and shouldn't be:`)
+        log(
+            chalk.red(
+                badBrew
+                    .filter((it) => it != null)
+                    .map((it) => ` - ${chalk.bold(it)}`)
+                    .join('\n'),
+            ),
+        )
     }
 
     if (bad.length) {
