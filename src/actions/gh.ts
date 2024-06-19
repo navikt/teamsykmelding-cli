@@ -1,5 +1,6 @@
 import path from 'node:path'
 
+import * as R from 'remeda'
 import chalk from 'chalk'
 
 import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult } from '../common/octokit.ts'
@@ -85,7 +86,11 @@ async function fetchRepos(): Promise<string[]> {
         team,
     })
 
-    return queryResult.organization.team.repositories.nodes.map((it) => it.name)
+    return R.pipe(
+        queryResult.organization.team.repositories.nodes,
+        R.filter((it) => !it.isArchived),
+        R.map((it) => it.name),
+    )
 }
 
 async function loadCachedRepos(): Promise<string[]> {
