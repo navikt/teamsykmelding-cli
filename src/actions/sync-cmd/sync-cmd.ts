@@ -103,7 +103,7 @@ async function runCommand(
     const repoDir = `${GIT_CACHE_DIR}/${repo.name}`
 
     log(`${chalk.blue(repo.name)} $ ${chalk.yellow(cmd)}`)
-    const result = await $`${{ raw: cmd }}`.cwd(repoDir).quiet()
+    const result = await $`${{ raw: cmd }}`.cwd(repoDir).quiet().throws(false)
 
     if (result.exitCode !== 0) {
         log(chalk.red(`Command failed in ${repo.name}`))
