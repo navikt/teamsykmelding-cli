@@ -32,8 +32,8 @@ export async function syncRepoSettings(): Promise<void> {
             try {
                 await applySettings(team, repo.name)
                 log(chalk.green(' OK!'))
-            } catch (e) {
-                log(chalk.red(' FAILED! :('))
+            } catch (error) {
+                log(chalk.red(` FAILED! :( (why: ${error})`))
             }
         }
 
@@ -44,7 +44,7 @@ export async function syncRepoSettings(): Promise<void> {
 
 const expectedRepoSettingsPairs: [string, unknown][] = R.pipe(
     EXPECTED_REPO_SETTINGS,
-    R.toPairs,
+    R.entries(),
     R.sortBy(([key]) => key),
 )
 
@@ -66,7 +66,7 @@ export async function checkSettingsOK(team: string, repo: string): Promise<[stri
             'has_projects',
             'has_wiki',
         ]),
-        R.toPairs,
+        R.entries(),
         R.sortBy(([key]) => key),
     )
 

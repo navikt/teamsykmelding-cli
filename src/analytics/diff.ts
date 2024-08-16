@@ -9,10 +9,10 @@ export function usageDiff(command: Command[], args?: Args): Usage {
             usage: 1,
             argsUsage: R.pipe(
                 args ?? ({} satisfies Args),
-                R.toPairs.strict,
+                R.entries(),
                 R.map(([key, value]) => `${key}:${value}`),
                 R.map((key): [string, number] => [key, 1]),
-                R.fromPairs.strict,
+                R.fromEntries(),
             ),
         },
     }
@@ -25,7 +25,7 @@ export function applyDiff(usage: Usage, existing: UserCommandUsage): UserCommand
             ...existing.usage,
             ...R.pipe(
                 usage,
-                R.toPairs.strict,
+                R.entries(),
                 R.map(([commandKey, value]): [string, CommandUsage] => [
                     commandKey,
                     {
@@ -34,17 +34,17 @@ export function applyDiff(usage: Usage, existing: UserCommandUsage): UserCommand
                             ...existing.usage[commandKey]?.argsUsage,
                             ...R.pipe(
                                 value.argsUsage,
-                                R.toPairs.strict,
+                                R.entries(),
                                 R.map(([key, value]): [string, number] => [
                                     key,
                                     value + (existing.usage[commandKey]?.argsUsage[key] ?? 0),
                                 ]),
-                                R.fromPairs.strict,
+                                R.fromEntries(),
                             ),
                         },
                     },
                 ]),
-                R.fromPairs.strict,
+                R.fromEntries(),
             ),
         },
     }

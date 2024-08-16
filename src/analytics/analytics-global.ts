@@ -16,7 +16,7 @@ export async function showUsageAnalytics(detailed: boolean): Promise<void> {
     log(`Analytics of ${chalk.blueBright('tsm')} usage for ${chalk.greenBright(user)}:`)
     R.pipe(
         usage,
-        R.toPairs,
+        R.entries(),
         R.sortBy([([, value]) => value.usage, 'desc']),
         R.filter(([, value]) => value.usage > 1),
         R.take(10),
@@ -24,7 +24,7 @@ export async function showUsageAnalytics(detailed: boolean): Promise<void> {
             log(`  ${chalk.blueBright(key)}: ${chalk.green(value.usage)}`)
             R.pipe(
                 value.argsUsage,
-                R.toPairs,
+                R.entries(),
                 R.filter(([, value]) => value > 1),
                 R.forEach(([key, value]) => {
                     if (detailed) {

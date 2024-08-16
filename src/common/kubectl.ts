@@ -46,10 +46,15 @@ export async function changeContext(namespace: string, cluster: 'dev-gcp' | 'pro
     const clusterOutput = await $`kubectl config use-context ${cluster}`.quiet()
     const namespaceOutput = await $`kubectl config set-context --current --namespace=${namespace}`.quiet()
 
-    clusterOutput.exitCode === 0
-        ? log(`→ Cluster set to ${chalk.green(cluster)}`)
-        : log(chalk.red(`Failed to set cluster: ${clusterOutput.stderr.toString()}`))
-    namespaceOutput.exitCode === 0
-        ? log(`→ Namespace set to ${chalk.green(namespace)}`)
-        : log(chalk.red(`Failed to set namespace: ${namespaceOutput.stderr.toString()}`))
+    if (clusterOutput.exitCode === 0) {
+        log(`→ Cluster set to ${chalk.green(cluster)}`)
+    } else {
+        log(chalk.red(`Failed to set cluster: ${clusterOutput.stderr.toString()}`))
+    }
+
+    if (namespaceOutput.exitCode === 0) {
+        log(`→ Namespace set to ${chalk.green(namespace)}`)
+    } else {
+        log(chalk.red(`Failed to set namespace: ${namespaceOutput.stderr.toString()}`))
+    }
 }

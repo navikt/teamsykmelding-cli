@@ -21,7 +21,7 @@ const reposQuery = /* GraphQL */ `
     ${BaseRepoNodeFragment}
 `
 
-async function getMainBranchPerRepo(team: string): Promise<[string, string][]> {
+async function getMainBranchPerRepo(team: string): Promise<(readonly [string, string])[]> {
     log(chalk.green(`Getting all main branch for repos in team ${team}`))
 
     const queryResult = await ghGqlQuery<OrgTeamRepoResult<unknown>>(reposQuery, { team })
@@ -29,7 +29,7 @@ async function getMainBranchPerRepo(team: string): Promise<[string, string][]> {
     return R.pipe(
         queryResult.organization.team.repositories.nodes,
         removeIgnoredAndArchived,
-        R.map((repo) => [repo.name, repo.defaultBranchRef.name]),
+        R.map((repo) => [repo.name, repo.defaultBranchRef.name] as const),
     )
 }
 

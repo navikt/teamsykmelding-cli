@@ -106,7 +106,7 @@ export async function checkBuilds(rerunFailed: boolean): Promise<void> {
 
     const { SUCCESS, FAILURE, CANCELLED, BUILDING, ...rest } = reposByState
 
-    log(`Found ${R.pipe(reposByState, R.toPairs, R.flatMap(R.last), R.length)} repos with build status`)
+    log(`Found ${R.pipe(reposByState, R.entries(), R.flatMap(R.last), R.length)} repos with build status`)
     log(chalk.green(`  Success: ${SUCCESS?.length ?? 0} repos`))
     log(chalk.yellow(`  Bulding: ${BUILDING?.length ?? 0} repos`))
     for (const repo of BUILDING ?? []) {

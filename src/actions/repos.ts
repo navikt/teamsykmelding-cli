@@ -54,7 +54,7 @@ export async function getRepos(): Promise<void> {
         removeIgnoredAndArchived,
         R.groupBy((it) => it.primaryLanguage?.name ?? 'unknown'),
         R.mapValues(R.sortBy([(it) => it.pushedAt, 'asc'])),
-        R.toPairs,
+        R.entries(),
         R.sortBy(([, [firstNode]]) => firstNode.pushedAt),
     )
 

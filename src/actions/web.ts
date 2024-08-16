@@ -35,7 +35,8 @@ const availablePages = {
 }
 
 type PageKeys = (typeof pageKeys)[number]
-const pageKeys = R.keys.strict(staticPages)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const pageKeys = R.keys(staticPages)
 
 const availableApps = {
     sykmeldinger: {
@@ -71,7 +72,8 @@ const availableApps = {
 }
 
 type AppKeys = (typeof appKeys)[number]
-const appKeys = R.keys.strict(availableApps)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const appKeys = R.keys(availableApps)
 
 export async function openResource(what: string | null, env: string | null): Promise<void> {
     if (what != null && isPage(what)) {

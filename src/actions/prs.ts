@@ -93,7 +93,7 @@ export async function openPrs(includeDrafts: boolean, noBot: boolean): Promise<v
 
     R.pipe(
         openPrs,
-        R.toPairs,
+        R.entries(),
         R.sortBy([([, prs]) => R.first(prs)?.updatedAt ?? '', 'desc']),
         R.forEach(([repo, prs]) => {
             log(chalk.greenBright(repo))
