@@ -74,7 +74,7 @@ Du kan også bruke `tsmx` for å interaktivt bytte mellom team, dersom du har sa
 #### Sjekk at du har satt opp alle verktøy riktig
 
 ```bash
-tsm check
+tsm doctors
 ```
 
 #### Alle åpne pull requester i våre repos, inkludert drafts
@@ -83,16 +83,28 @@ tsm check
 tsm prs --drafts
 ```
 
+#### Se alle statuser på bygg i alle repos
+
+```bash
+tsm builds
+```
+
 #### Hent alle nyeste commits i alle repos
 
 ```bash
 tsm commits
 ```
 
-#### Hent de 10 eldste commitsene i våre repos:
+#### Hent de 10 reposene som er lengst siden oppdatert
 
 ```bash
 tsm commits --order=asc --limit=10
+```
+
+#### Finn alle repos som bruker yarn
+
+```bash
+tsm repos --query='cat .yarnrc.yml'
 ```
 
 ### Utvikling
