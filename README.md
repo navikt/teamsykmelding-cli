@@ -74,7 +74,7 @@ Du kan også bruke `tsmx` for å interaktivt bytte mellom team, dersom du har sa
 #### Sjekk at du har satt opp alle verktøy riktig
 
 ```bash
-tsm doctors
+tsm doctor
 ```
 
 #### Alle åpne pull requester i våre repos, inkludert drafts
