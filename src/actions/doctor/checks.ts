@@ -33,10 +33,10 @@ export async function checkPatTokenNpm(): Promise<string | null> {
 }
 
 export async function checkPatTokenMvn(): Promise<string | null> {
-    const envGithubUser = await $`[ -n "$ORG_GRADLE_PROJECT_githubUser" ] && echo 0 || echo 1`.quiet()
-    const envGithubPassword = await $`[ -n "$ORG_GRADLE_PROJECT_githubPassword" ] && echo 0 || echo 1`.quiet()
+    const envGithubUser = Bun.env.ORG_GRADLE_PROJECT_githubUser?.length
+    const envGithubPassword = Bun.env.ORG_GRADLE_PROJECT_githubPassword?.length
 
-    if (envGithubUser.exitCode === 0 && envGithubPassword.exitCode === 0) {
+    if (envGithubUser === 0 && envGithubPassword === 0) {
         return null
     } else {
         const file = Bun.file(`${Bun.env.HOME}/.gradle/gradle.properties`)
