@@ -1,8 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment,no-console */
-
-import path from 'node:path'
-
-// @ts-ignore bun script doesn't like importing src
 import { getYargsParser } from '../src/yargs-parser'
 
 const availableCommands = await Promise.all(
@@ -14,7 +9,7 @@ const availableCommands = await Promise.all(
 const readmeMarkersRegex =
     /<!-- COMPUTER SAYS DON'T TOUCH THIS START -->[\s\S]*?<!-- COMPUTER SAYS DON'T TOUCH THIS END -->/g
 
-const readmeFile = Bun.file(path.join(process.cwd(), 'README.md'))
+const readmeFile = Bun.file(import.meta.dir + '/../README.md')
 const originalFileContent = await readmeFile.text()
 const newContent = `<!-- COMPUTER SAYS DON'T TOUCH THIS START -->
 
