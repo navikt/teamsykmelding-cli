@@ -33,22 +33,29 @@ export async function checkPatTokenNpm(): Promise<string | null> {
 }
 
 export async function checkPatTokenMvn(): Promise<string | null> {
-    const file = Bun.file(`${Bun.env.HOME}/.gradle/gradle.properties`)
-    const exists = await file.exists()
-    if (!exists) {
-        return 'Unable to find ~/.gradle/gradle.properties. Have you set up your Github Personal Access Token?'
-    }
+    const envGithubUser = Bun.env.ORG_GRADLE_PROJECT_githubUser?.length
+    const envGithubPassword = Bun.env.ORG_GRADLE_PROJECT_githubPassword?.length
 
-    const content = await file.text()
-    if (!content.includes('githubUser=x-access-token')) {
-        return 'Unable to find githubUser=x-access-token in ~/.gradle/gradle.properties. Have you set up your Github Personal Access Token?'
-    }
+    if (envGithubUser === 0 && envGithubPassword === 0) {
+        return null
+    } else {
+        const file = Bun.file(`${Bun.env.HOME}/.gradle/gradle.properties`)
+        const exists = await file.exists()
+        if (!exists) {
+            return 'Unable to find ~/.gradle/gradle.properties. Have you set up your Github Personal Access Token?'
+        }
 
-    if (!content.includes('githubPassword')) {
-        return 'Unable to find githubPassword in ~/.gradle/gradle.properties. Have you set up your Github Personal Access Token?'
-    }
+        const content = await file.text()
+        if (!content.includes('githubUser=x-access-token')) {
+            return 'Unable to find githubUser=x-access-token in ~/.gradle/gradle.properties. Have you set up your Github Personal Access Token?'
+        }
 
-    return null
+        if (!content.includes('githubPassword')) {
+            return 'Unable to find githubPassword in ~/.gradle/gradle.properties. Have you set up your Github Personal Access Token?'
+        }
+
+        return null
+    }
 }
 
 export async function defaultExistsCheck(what: string, command: ShellPromise): Promise<string | null> {
