@@ -41,29 +41,29 @@ Nå er du klar til å bruke `tsm`!
 
 <!-- COMPUTER SAYS DON'T TOUCH THIS START -->
 
-* `doctor` - check that all tooling and such looks OK
-* `auth` - login to gcloud
-* `commits` - get the last commits for every repo in the team
-* `prs` - get all open pull requests
-* `repos` - get all repos
-* `builds` - checks all repos for failing builds (on main)
-* `git` - keep our repos in sync, ex: tsm git sync
-* `work` - see what has happened the last week (or more)
-* `mock` - do stuff with the mock
-* `team` - get all team members
-* `sync-file` - sync a file across specified repos
-* `sync-cmd` - execute a command across multiple repos and stage and commit the changes
-* `primary-branch` - get misc repo metadata
-* `mob` - make a mob commit
-* `config` - set config for tsm
-* `upgrade` - update the cli
-* `changelog` - get the latest changes in tsm cli
-* `analytics` - get your own usage stats for tsm cli
-* `open` - open command that opens a project in IntelliJ IDEA
-* `web` - open web page
-* `gh` - open github repo in browser
-* `kafka` - kafka cli for kafka stuff
-* `azure` - azure cli for azure stuff
+* `doctor` - undefined
+* `auth` - undefined
+* `commits` - undefined
+* `prs` - undefined
+* `repos` - undefined
+* `builds` - undefined
+* `git` - undefined
+* `work` - undefined
+* `mock` - undefined
+* `team` - undefined
+* `sync-file` - undefined
+* `sync-cmd` - undefined
+* `primary-branch` - undefined
+* `mob` - undefined
+* `config` - undefined
+* `upgrade` - undefined
+* `changelog` - undefined
+* `analytics` - undefined
+* `open` - undefined
+* `web` - undefined
+* `gh` - undefined
+* `kafka` - undefined
+* `azure` - undefined
 
 <!-- COMPUTER SAYS DON'T TOUCH THIS END -->
 

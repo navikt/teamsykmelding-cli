@@ -36,7 +36,7 @@ export async function checkPatTokenMvn(): Promise<string | null> {
     const envGithubUser = Bun.env.ORG_GRADLE_PROJECT_githubUser?.length
     const envGithubPassword = Bun.env.ORG_GRADLE_PROJECT_githubPassword?.length
 
-    if (envGithubUser === 0 && envGithubPassword === 0) {
+    if (envGithubUser !== 0 && envGithubPassword !== 0) {
         return null
     } else {
         const file = Bun.file(`${Bun.env.HOME}/.gradle/gradle.properties`)
