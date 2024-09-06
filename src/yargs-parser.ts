@@ -32,6 +32,7 @@ import { openRepoWeb } from './actions/gh.ts'
 import { syncCmd } from './actions/sync-cmd/sync-cmd.ts'
 import { syncRepoSettings } from './actions/repo-settings/sync.ts'
 import { checkBuilds } from './actions/builds/builds.ts'
+import { liveBuildDashboard } from './actions/builds/live/build-dashboard.tsx'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
@@ -100,12 +101,21 @@ export const getYargsParser = (argv: string[]): Argv =>
             'builds',
             'checks all repos for failing builds (on main)',
             (yargs) =>
-                yargs.option('rerun-failed', {
-                    type: 'boolean',
-                    demandOption: false,
-                    default: false,
-                }),
+                yargs
+                    .option('rerun-failed', {
+                        type: 'boolean',
+                        demandOption: false,
+                        default: false,
+                    })
+                    .option('live', {
+                        type: 'boolean',
+                        demandOption: false,
+                    }),
             async (args) => {
+                if (args.live) {
+                    await liveBuildDashboard()
+                    return
+                }
                 await checkBuilds(args.rerunFailed)
             },
         )

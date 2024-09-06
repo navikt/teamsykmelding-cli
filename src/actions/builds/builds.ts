@@ -22,7 +22,7 @@ type CheckSuite = {
     }
 }
 
-type BranchRefNode = {
+export type BuildsBranchRefNode = {
     defaultBranchRef: {
         target: {
             message: string
@@ -33,7 +33,7 @@ type BranchRefNode = {
     }
 }
 
-const reposQuery = /* GraphQL */ `
+export const buildsQuery = /* GraphQL */ `
     query OurRepos($team: String!) {
         organization(login: "navikt") {
             team(slug: $team) {
@@ -79,7 +79,7 @@ export async function checkBuilds(rerunFailed: boolean): Promise<void> {
         ),
     )
 
-    const queryResult = await ghGqlQuery<OrgTeamRepoResult<BranchRefNode>>(reposQuery, {
+    const queryResult = await ghGqlQuery<OrgTeamRepoResult<BuildsBranchRefNode>>(buildsQuery, {
         team,
     })
 
