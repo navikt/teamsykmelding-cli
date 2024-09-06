@@ -45,6 +45,7 @@ async function returnReposFragments(): Promise<string> {
                     <h3 class="font-bold">${repo.name}</h3>
                     <div>
                         <a
+                            target="_blank"
                             class="underline"
                             href="https://github.com/navikt/${repo.name}/actions/runs/${repo.action?.workflowRun
                                 ?.databaseId}"
@@ -61,7 +62,7 @@ async function returnReposFragments(): Promise<string> {
                         })}
                     </div>
                     <div class="absolute bottom-2 right-2">
-                        <a class="underline" href="https://github.com/navikt/${repo.name}">(repo)</a>
+                        <a class="underline" href="https://github.com/navikt/${repo.name}" target="_blank">(repo)</a>
                     </div>
                 </div>`
             })

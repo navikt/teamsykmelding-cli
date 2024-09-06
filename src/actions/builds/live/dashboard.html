@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
     <head>
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -65,5 +65,22 @@
         <div class="grid" hx-get="/api/repos" hx-trigger="load, every 10s" hx-target=".grid" hx-indicator=".loader">
             Loading...
         </div>
+        <div
+            class="error text-center py-2 text-red-600 absolute w-full h-full top-0 left-0 bg-red-100/80 text-lg flex flex-col items-center justify-center flex gap-4 hidden"
+        >
+            <div>Failed to load repositories.</div>
+            <div>You have probably closed the CLI.</div>
+            <div>Re-run <code class="bg-white p-1">tsm builds --live</code> to restart server.</div>
+        </div>
+        <script>
+            document.body.addEventListener('htmx:sendError', function (e) {
+                document.querySelector('.error').classList.remove('hidden')
+            })
+            document.body.addEventListener('htmx:afterRequest', function (event) {
+                if (event.detail.successful) {
+                    document.querySelector('.error').classList.add('hidden')
+                }
+            })
+        </script>
     </body>
 </html>
