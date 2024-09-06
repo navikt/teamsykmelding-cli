@@ -4,7 +4,7 @@ import path from 'node:path'
 import simpleGit, { CleanOptions, ResetMode, SimpleGit } from 'simple-git'
 
 import { GIT_CACHE_DIR } from './cache.ts'
-import { log, logProgressDot } from './log.ts'
+import { log, logError, logProgressDot } from './log.ts'
 
 type GitterType = 'cache' | { type: 'user-config'; dir: string }
 
@@ -44,14 +44,32 @@ export class Gitter {
         repo: string,
         defaultBranch: string,
         silent: boolean,
-    ): Promise<'updated' | { type: 'error'; message: string }> {
+    ): Promise<'updated' | 'cloned' | { type: 'error'; message: string }> {
         const t1 = performance.now()
         const repoClient = this.createRepoGitClient(repo)
 
         if (this.type === 'cache') {
-            repoClient.clean([CleanOptions.FORCE, CleanOptions.RECURSIVE]).reset(ResetMode.HARD, ['origin/HEAD']).pull({
-                '--rebase': null,
-            })
+            // For repos that haved changed main, or fail for other reason
+            try {
+                await repoClient.fetch(['--all']) // Fetch all branches
+                await repoClient.checkout(defaultBranch)
+            } catch (error) {
+                logError(`Unable to fetch for ${repo} (branch: ${defaultBranch}), cause: ${error}`)
+                logError('Nuking repo and trying to clone again')
+                fs.rmdirSync(path.join(GIT_CACHE_DIR, repo), { recursive: true })
+                return this.clone(repo, silent, false)
+            }
+
+            try {
+                await repoClient
+                    .clean([CleanOptions.FORCE, CleanOptions.RECURSIVE])
+                    .reset(ResetMode.HARD, ['origin/HEAD'])
+                    .pull({
+                        '--rebase': null,
+                    })
+            } catch (error) {
+                logError(`Unable to pull for ${repo} (branch: ${defaultBranch}), cause: ${error}`)
+            }
         } else {
             try {
                 const currentBranch = await repoClient.revparse(['--abbrev-ref', 'HEAD'])

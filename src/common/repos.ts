@@ -9,7 +9,7 @@ import {
 } from './octokit.ts'
 import { log } from './log.ts'
 
-const blacklist: string[] = ['vault-iac']
+const blacklist: string[] = ['vault-iac', 'omrade-helse-etterlevelse-topic']
 
 export function blacklisted<Repo extends { name: string }>(repo: Repo): boolean {
     return !blacklist.includes(repo.name)

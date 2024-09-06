@@ -117,13 +117,22 @@ async function runCommand(
         }
     }
 
-    const diff = await new Gitter('cache').createRepoGitClient(repo.name).diffSummary()
+    const repoGit = new Gitter('cache').createRepoGitClient(repo.name)
+    const diff = await repoGit.diffSummary()
 
     log(
         `${chalk.yellow(diff.files.length)} files changed, ${chalk.green(diff.insertions)} insertions(+), ${chalk.red(
             diff.deletions,
         )} deletions(-)`,
     )
+
+    const diffPerFile = await Promise.all(
+        diff.files.map(async (it): Promise<[string, string]> => [it.file, await repoGit.diff(['--', it.file])]),
+    )
+    const diffPerFileMap = R.fromEntries(diffPerFile)
+
+    console.log(diffPerFileMap)
+
     // show diff in files
     log(
         diff.files
@@ -131,7 +140,7 @@ async function runCommand(
                 if (it.binary) {
                     return `${it.file} (binary)`
                 } else {
-                    return `- ${it.file} +${chalk.green(it.insertions)}/-${chalk.red(it.deletions)}`
+                    return `- ${chalk.bold(it.file)} +${chalk.green(it.insertions)}/-${chalk.red(it.deletions)}\n${colorizeDiff(diffPerFileMap[it.file])}`
                 }
             })
             .join('\n'),
@@ -199,4 +208,19 @@ async function finalCheckAndCommitPush(stagedRepos: BaseRepoNode<unknown>[]): Pr
     } else {
         log(chalk.red('Aborting!'))
     }
+}
+
+const colorizeDiff = (diffText: string): string => {
+    return diffText
+        .split('\n')
+        .map((line) => {
+            if (line.startsWith('+')) return chalk.green(line) // Added line
+            if (line.startsWith('-')) return chalk.red(line) // Removed line
+            if (line.startsWith('@@')) return chalk.blue(line) // Hunk header
+            if (line.startsWith('diff')) return chalk.magenta(line) // Diff command
+            if (line.startsWith('index')) return chalk.yellow(line) // Index line
+            return line // Unchanged lines
+        })
+        .map((line) => `    ${line}`)
+        .join('\n')
 }
