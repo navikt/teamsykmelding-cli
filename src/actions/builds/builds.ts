@@ -96,7 +96,7 @@ export async function checkBuilds(rerunFailed: boolean): Promise<void> {
         R.groupBy((it) => {
             if (it.action?.status === 'IN_PROGRESS') return 'BUILDING'
 
-            log(`Unknown status ${it.action?.status} for ${it.name}`)
+            if (!it.action?.conclusion) log(`Unknown status ${it.action?.status} for ${it.name}`)
 
             return it.action?.conclusion ?? 'unknown'
         }),
