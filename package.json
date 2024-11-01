@@ -19,7 +19,7 @@
         "fs-extra": "^11.2.0",
         "inquirer": "^9.2.21",
         "inquirer-autocomplete-prompt": "^3.0.1",
-        "octokit": "^4.0.2",
+        "octokit": "^3.2.0",
         "open": "^10.1.0",
         "remeda": "^2.16.0",
         "simple-git": "^3.27.0",
