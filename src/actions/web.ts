@@ -2,7 +2,7 @@ import * as R from 'remeda'
 import chalk from 'chalk'
 import { search } from '@inquirer/prompts'
 
-import inquirer, { hackilyFixBackToBackPrompt } from '../common/inquirer.ts'
+import { hackilyFixBackToBackPrompt } from '../common/inquirer.ts'
 import { log } from '../common/log.ts'
 import { openUrl } from '../common/open-url.ts'
 
@@ -100,15 +100,16 @@ export async function openResource(what: string | null, env: string | null): Pro
         return
     }
 
-    const { selectedRootItem } = await inquirer.prompt([
-        {
-            type: 'autocomplete',
-            name: 'selectedRootItem',
-            message: 'What do you want to open?',
-            source: async (_: unknown, input: string) =>
-                everything.filter((page) => page.includes(input ?? what ?? '')),
-        },
-    ])
+    const selectedRootItem = await search({
+        message: 'What do you want to open?',
+        source: (term) =>
+            everything
+                .filter((page) => page.includes(term ?? what ?? ''))
+                .map((it) => ({
+                    name: it,
+                    value: it,
+                })),
+    })
 
     await openAppOrPage(selectedRootItem)
 }
