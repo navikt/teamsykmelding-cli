@@ -3,6 +3,7 @@ import path from 'node:path'
 import * as R from 'remeda'
 import chalk from 'chalk'
 import { PushResult } from 'simple-git'
+import { search } from '@inquirer/prompts'
 
 import { BaseRepoNode } from '../common/octokit.ts'
 import { log } from '../common/log.ts'
@@ -79,25 +80,21 @@ export async function syncFileAcrossRepos(query: string): Promise<void> {
     log(`! Your query ${chalk.yellow(query)} matched ${chalk.green(relevantRepos.length)} repos:`)
 
     // Step 1, selecting the source repo
-    const sourceRepo = await inquirer.prompt<{ source: string }>([
-        {
-            type: 'autocomplete',
-            name: 'source',
-            message: 'Select source repository',
-            source: (_: unknown, input: string) =>
-                relevantRepos
-                    .filter((it) => (input == null ? true : it.name.includes(input)))
-                    .map((it) => ({ name: it.name, value: it.name })),
-        },
-    ])
+    const sourceRepo = await search({
+        message: 'Select source repository',
+        source: (term) =>
+            relevantRepos
+                .filter((it) => (term == null ? true : it.name.includes(term)))
+                .map((it) => ({ name: it.name, value: it.name })),
+    })
 
     // Step 2, selecting a valid file in the source repo
     await hackilyFixBackToBackPrompt()
-    const fileToSync = await getValidFileInSource(sourceRepo.source)
+    const fileToSync = await getValidFileInSource(sourceRepo)
 
     // Step 3, selecting target repos
     await hackilyFixBackToBackPrompt()
-    const otherRepos = relevantRepos.filter((it) => it.name !== sourceRepo.source)
+    const otherRepos = relevantRepos.filter((it) => it.name !== sourceRepo)
     const targetRepos = await getTargetRepos(otherRepos)
 
     // Step 4, writing commit message
@@ -121,7 +118,7 @@ export async function syncFileAcrossRepos(query: string): Promise<void> {
     })
 
     if (confirmResult.confirm) {
-        await copyFileToRepos(sourceRepo.source, targetRepos, fileToSync, commitMessage.message)
+        await copyFileToRepos(sourceRepo, targetRepos, fileToSync, commitMessage.message)
     } else {
         log(chalk.red('Aborting!'))
     }

@@ -1,5 +1,6 @@
 import * as R from 'remeda'
 import chalk from 'chalk'
+import { search } from '@inquirer/prompts'
 
 import inquirer, { hackilyFixBackToBackPrompt } from '../common/inquirer.ts'
 import { log } from '../common/log.ts'
@@ -137,16 +138,12 @@ async function openApp(app: AppKeys, env: keyof Envs): Promise<void> {
 
 async function getAppEnv(app: AppKeys): Promise<keyof Envs> {
     const envs = availableApps[app]
-    const { selectedEnv } = await inquirer.prompt([
-        {
-            type: 'autocomplete',
-            name: 'selectedEnv',
-            message: `What environment for ${app} do you want to open?`,
-            source: async (_: unknown, input: string) => R.keys(envs).filter((page) => page.includes(input ?? '')),
-        },
-    ])
+    const selectedEnv = await search({
+        message: `What environment for ${app} do you want to open?`,
+        source: (term) => R.keys(envs).filter((page) => page.includes(term ?? '')),
+    })
 
-    return selectedEnv
+    return selectedEnv as keyof Envs
 }
 
 function isPage(what: string): what is PageKeys {

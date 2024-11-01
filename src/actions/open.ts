@@ -3,10 +3,10 @@ import fs from 'node:fs'
 import * as child_process from 'child_process'
 
 import chalk from 'chalk'
+import { search } from '@inquirer/prompts'
 
 import { getConfig } from '../common/config.ts'
 import { log, logError } from '../common/log.ts'
-import inquirer from '../common/inquirer.ts'
 
 async function openProject(projectDir: string): Promise<void> {
     const absolutePath: string = path.resolve(projectDir)
@@ -21,36 +21,44 @@ async function openProject(projectDir: string): Promise<void> {
         }
     })
 }
-export async function open(projectDir: string | undefined | null): Promise<void> {
+export async function open(initialQuery: string | undefined | null): Promise<void> {
     const config = await getConfig()
-    log(`projectDir is ${projectDir}`)
     if (config.gitDir == null) {
         log(`${chalk.red('Git dir not set, run: ')}${chalk.yellow('tsm config --git-dir=<dir>')}`)
         process.exit(1)
     }
 
     const files = fs.readdirSync(config.gitDir)
-    const myInput = projectDir || ''
-    const response = await inquirer.prompt([
-        {
-            type: 'autocomplete',
-            name: 'selectedFile',
-            message: 'Start typing to search for a directory',
-            source: function (_: unknown, input: string) {
-                return new Promise(function (resolve) {
-                    const results = files.filter((file) => file.includes(input || myInput))
-                    resolve(results)
-                })
-            },
-        },
-    ])
+    const perfectMatch = files.find((it) => it === initialQuery)
+    if (perfectMatch) {
+        const absolutePath = path.resolve(config.gitDir, perfectMatch)
+        await openProject(absolutePath)
+        return
+    }
 
-    projectDir = response.selectedFile
-    if (!projectDir) {
+    const initialSuggestions = files.filter((file) => file.includes(initialQuery || ''))
+    const selectedDirectory = await search({
+        message: 'Type to filter projects',
+        source: (input) => {
+            if (input == null || input.trim() === '') {
+                return initialSuggestions
+            }
+
+            return (initialSuggestions.length === 0 ? files : initialSuggestions)
+                .filter((file) => file.includes(input))
+                .map((it) => ({
+                    name: it,
+                    value: it,
+                }))
+        },
+    })
+
+    if (!selectedDirectory) {
         log('No project selected')
         process.exit(1)
     }
-    const absolutePath = path.resolve(config.gitDir, projectDir)
+
+    const absolutePath = path.resolve(config.gitDir, selectedDirectory)
     if (fs.existsSync(absolutePath)) {
         log(`Opening ${absolutePath} in IDE...`)
         await openProject(absolutePath)

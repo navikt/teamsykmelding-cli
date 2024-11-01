@@ -14,11 +14,11 @@
         "postinstall": "bun x prettier package.json --write && echo \"Prettiered package.json\""
     },
     "dependencies": {
+        "@inquirer/prompts": "^7.0.1",
         "chalk": "^5.3.0",
-        "date-fns": "^3.6.0",
+        "date-fns": "^4.1.0",
         "fs-extra": "^11.2.0",
         "inquirer": "^9.2.21",
-        "inquirer-autocomplete-prompt": "^3.0.1",
         "octokit": "^3.2.0",
         "open": "^10.1.0",
         "remeda": "^2.16.0",

@@ -1,7 +1,4 @@
-import autocomplete from 'inquirer-autocomplete-prompt'
 import inquirer from 'inquirer'
-
-inquirer.registerPrompt('autocomplete', autocomplete)
 
 /**
  * Sometimes when inquirer propmts are invoked back to back, the second prompt

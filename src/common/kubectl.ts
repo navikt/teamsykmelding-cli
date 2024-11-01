@@ -1,7 +1,7 @@
 import { $ } from 'bun'
 import chalk from 'chalk'
+import { search } from '@inquirer/prompts'
 
-import inquirer from './inquirer.ts'
 import { log } from './log.ts'
 
 // eslint-disable-next-line
@@ -19,22 +19,19 @@ export function getAllAppNames(pods: any[]): Map<string, any[]> {
 
 // eslint-disable-next-line
 export async function promptForAppName(appPodMap: Map<string, any>, appname: string | undefined | null) {
-    // Convert Map keys into an array of app names
     const appNames: string[] = Array.from(appPodMap.keys())
     const appInput = appname || ''
-    const { appName } = await inquirer.prompt([
-        {
-            type: 'autocomplete',
-            name: 'appName',
-            message: 'Start typing to search for an app',
-            source: function (_: unknown, input: string) {
-                return new Promise(function (resolve) {
-                    const results = appNames.filter((app) => app.includes(input ?? appInput))
-                    resolve(results)
-                })
-            },
+    const appName = await search({
+        message: 'Start typing to search for an app',
+        source: (term) => {
+            return appNames
+                .filter((app) => app.includes(term ?? appInput))
+                .map((app) => ({
+                    name: app,
+                    value: app,
+                }))
         },
-    ])
+    })
 
     return {
         appName,

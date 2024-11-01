@@ -2,9 +2,9 @@ import path from 'node:path'
 
 import * as R from 'remeda'
 import chalk from 'chalk'
+import { search } from '@inquirer/prompts'
 
 import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult } from '../common/octokit.ts'
-import inquirer from '../common/inquirer.ts'
 import { CACHE_DIR } from '../common/cache.ts'
 import { log, logError } from '../common/log.ts'
 import { getTeam } from '../common/config.ts'
@@ -26,29 +26,26 @@ const reposForTeamQuery = /* GraphQL */ `
     ${BaseRepoNodeFragment}
 `
 
-export async function openRepoWeb(search: string | null, noCache: true | undefined): Promise<void> {
+export async function openRepoWeb(initialTerm: string | null, noCache: true | undefined): Promise<void> {
     const repos = await getRepos(!noCache)
 
-    const perfectMatch = repos.find((it) => it === search)
+    const perfectMatch = repos.find((it) => it === initialTerm)
     if (perfectMatch != null) {
         await openRepo(perfectMatch)
         return
     }
 
-    const initialFilter = repos.filter((name) => name.includes(search ?? ''))
+    const initialFilter = repos.filter((name) => name.includes(initialTerm ?? ''))
     if (initialFilter.length === 1) {
         await openRepo(initialFilter[0])
         return
     }
 
-    const { item } = await inquirer.prompt([
-        {
-            type: 'autocomplete',
-            name: 'item',
-            message: 'Which repo do you want to open in browser?',
-            source: async (_: unknown, input: string) => repos.filter((name) => name.includes(input ?? search ?? '')),
-        },
-    ])
+    const item = await search({
+        message: 'Which repo do you want to open in browser?',
+        source: (term) =>
+            repos.filter((name) => name.includes(term ?? initialTerm ?? '')).map((name) => ({ name, value: name })),
+    })
 
     await openRepo(item)
 }

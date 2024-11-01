@@ -1,9 +1,9 @@
 import path from 'node:path'
 
 import chalk from 'chalk'
+import { checkbox } from '@inquirer/prompts'
 
 import { CACHE_DIR } from './cache.ts'
-import inquirer from './inquirer.ts'
 import { log } from './log.ts'
 
 export type Author = [name: string, email: string, user: string]
@@ -24,27 +24,26 @@ export async function promptForCoAuthors(): Promise<Author[]> {
     const bonusCoAuthors = await getBonusCoAuthors()
     const combinedAuthorOptions = [...authorOptions, ...bonusCoAuthors]
 
-    const selectedAuthors = await inquirer.prompt({
-        type: 'checkbox',
+    const selectedAuthors: Author[] = await checkbox({
+        message: 'Select co-authors',
         choices: combinedAuthorOptions
             .filter(([, , user]) => Bun.env.USER !== user)
             .map(([name, email, user]) => ({
                 name: `${name.split(' ')[0]}`,
-                value: [name, email, user],
-                checked: previouslyUsedCoAuthors?.find((prev) => name === prev[0]),
+                value: [name, email, user] satisfies Author,
+                checked: previouslyUsedCoAuthors?.find((prev) => name === prev[0]) != null,
             })),
-        message: 'Select co-authors',
-        name: 'coAuthors',
+        pageSize: 15,
     })
 
-    if (selectedAuthors.coAuthors.length === 0) {
+    if (selectedAuthors.length === 0) {
         log(chalk.red('You must select at least one co-author'))
         return promptForCoAuthors()
     }
 
-    await cacheCoAuthors(selectedAuthors.coAuthors)
+    await cacheCoAuthors(selectedAuthors)
 
-    return selectedAuthors.coAuthors
+    return selectedAuthors
 }
 
 export function createCoAuthorsText(authors: Author[]): string {
