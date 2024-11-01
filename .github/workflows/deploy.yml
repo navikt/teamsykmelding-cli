@@ -25,6 +25,7 @@ jobs:
       - run: bun run tsc
       - run: bun run lint
       - run: bun run build-cli
+      # - run: bun test
       - run: bun run copy-html
       - run: bun run sanity-check
       - uses: actions/setup-node@v4
