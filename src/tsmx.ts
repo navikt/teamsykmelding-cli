@@ -1,8 +1,8 @@
 import chalk from 'chalk'
+import { select } from '@inquirer/prompts'
 
 import { log } from './common/log.ts'
 import { getTeamsCache } from './common/cache/team.ts'
-import inquirer from './common/inquirer.ts'
 import { updateConfig } from './common/config.ts'
 import { updateAnalytics } from './analytics'
 import { changeContext } from './common/kubectl.ts'
@@ -29,22 +29,22 @@ export async function tsmx(): Promise<void> {
         return
     }
 
-    const teamResponse = await inquirer.prompt<{ team: string }>({
-        type: 'list',
-        name: 'team',
+    const teamResponse = await select({
         message: 'Change team context to',
-        choices: teams,
+        choices: teams.map((team) => ({ name: team, value: team })),
     })
-    const clusterResponse = await inquirer.prompt<{ cluster: 'dev-gcp' | 'prod-gcp' }>({
-        type: 'list',
-        name: 'cluster',
+
+    const clusterResponse = await select<'dev-gcp' | 'prod-gcp'>({
         message: 'Which cluster?',
-        choices: ['dev-gcp', 'prod-gcp'],
+        choices: [
+            { name: 'dev-gcp', value: 'dev-gcp' },
+            { name: 'prod-gcp', value: 'prod-gcp' },
+        ] as const,
     })
 
     log('')
-    await updateConfig({ team: teamResponse.team })
-    await changeContext(teamResponse.team, clusterResponse.cluster)
+    await updateConfig({ team: teamResponse })
+    await changeContext(teamResponse, clusterResponse)
 
-    log(`→ tsm team switched to ${chalk.green(teamResponse.team)}`)
+    log(`→ tsm team switched to ${chalk.green(teamResponse)}`)
 }
